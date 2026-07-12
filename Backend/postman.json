@@ -1,0 +1,807 @@
+{
+  "info": {
+    "name": "SpectraGuard API",
+    "description": "AI-based pharmaceutical authentication system using Raman spectroscopy. Upload spectral CSV data and get instant drug authenticity classification.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "refId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Returns welcome message and links to docs."
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Returns service health status, version, and environment."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Signup (Public User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1234567890\",\n  \"role\": \"public\",\n  \"city\": \"Nairobi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Register a new public user. Role defaults to 'public'."
+          },
+          "response": []
+        },
+        {
+          "name": "Signup (Pharmacist)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Dr. Alice Mwangi\",\n  \"email\": \"alice@pharmacy.com\",\n  \"password\": \"securepass1\",\n  \"phone\": \"+254700000001\",\n  \"role\": \"pharmacist\",\n  \"organization\": \"MediCare Pharmacy\",\n  \"license_number\": \"PH-2024-001\",\n  \"designation\": \"Senior Pharmacist\",\n  \"city\": \"Nairobi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Register a pharmacist. license_number is required for this role."
+          },
+          "response": []
+        },
+        {
+          "name": "Signup (Investigator)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Dr. Bob Ochieng\",\n  \"email\": \"bob@lab.com\",\n  \"password\": \"labpass99\",\n  \"phone\": \"+254711000002\",\n  \"role\": \"investigator\",\n  \"organization\": \"NairoLab Research\",\n  \"license_number\": \"INV-2024-042\",\n  \"designation\": \"Research Investigator\",\n  \"city\": \"Mombasa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Register an investigator. license_number is required for this role."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('accessToken', json.access_token);",
+                  "  pm.collectionVariables.set('refreshToken', json.refresh_token);",
+                  "  console.log('Tokens saved to collection variables.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Authenticate and receive JWT access + refresh tokens. The test script auto-saves tokens to collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('accessToken', json.access_token);",
+                  "  pm.collectionVariables.set('refreshToken', json.refresh_token);",
+                  "  console.log('Tokens refreshed.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh-token"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Exchange a valid refresh token for a new access + refresh token pair."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Returns the profile of the currently authenticated user."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Spectra Upload",
+      "item": [
+        {
+          "name": "Upload Spectrum CSV",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) {",
+                  "  pm.collectionVariables.set('testId', json.id);",
+                  "  console.log('testId saved: ' + json.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/spectra/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["spectra", "upload"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "drug_name",
+                  "value": "Paracetamol",
+                  "type": "text"
+                },
+                {
+                  "key": "batch_number",
+                  "value": "BATCH-2024-001",
+                  "type": "text"
+                },
+                {
+                  "key": "manufacturer",
+                  "value": "PharmaCo Ltd",
+                  "type": "text"
+                },
+                {
+                  "key": "expiry_date",
+                  "value": "2026-12-31",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/spectrum.csv",
+                  "description": "CSV file with columns: wavenumber, intensity"
+                }
+              ]
+            },
+            "description": "Upload a Raman spectral CSV file. Expected CSV columns: wavenumber, intensity. Creates a Test record and stores parsed spectral data. The test script saves the returned test ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sample Datasets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/spectra/sample-datasets",
+              "host": ["{{baseUrl}}"],
+              "path": ["spectra", "sample-datasets"]
+            },
+            "description": "Returns metadata for preloaded sample CSV files available for demo use."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Spectral Data by Test ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/spectra/{{testId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["spectra", "{{testId}}"]
+            },
+            "description": "Retrieve parsed wavenumber and intensity arrays for a test (for frontend chart visualization)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "AI Classification",
+      "item": [
+        {
+          "name": "Run Classification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/classify/{{testId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["classify", "{{testId}}"]
+            },
+            "description": "Run AI spectral classification for a test. Computes cosine similarity against all reference spectra and returns classification result + confidence score. The test must have spectral data uploaded first."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Top Reference Matches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/classify/reference-matches/{{testId}}?top_n=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["classify", "reference-matches", "{{testId}}"],
+              "query": [
+                {
+                  "key": "top_n",
+                  "value": "5",
+                  "description": "Number of top matches to return (1-20, default 5)"
+                }
+              ]
+            },
+            "description": "Returns the top-N closest reference spectrum matches for a given test, ranked by cosine similarity."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test History",
+      "item": [
+        {
+          "name": "List Tests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tests?skip=0&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["tests"],
+              "query": [
+                {
+                  "key": "drug_name",
+                  "value": "Paracetamol",
+                  "description": "Filter by drug name (partial match)",
+                  "disabled": true
+                },
+                {
+                  "key": "result",
+                  "value": "genuine",
+                  "description": "Filter by result: genuine | potentially_counterfeit | requires_verification | pending",
+                  "disabled": true
+                },
+                {
+                  "key": "date_from",
+                  "value": "2024-01-01",
+                  "description": "Filter from date (YYYY-MM-DD)",
+                  "disabled": true
+                },
+                {
+                  "key": "date_to",
+                  "value": "2026-12-31",
+                  "description": "Filter to date (YYYY-MM-DD)",
+                  "disabled": true
+                },
+                {
+                  "key": "skip",
+                  "value": "0",
+                  "description": "Pagination offset"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Page size (max 100)"
+                }
+              ]
+            },
+            "description": "List tests for the current user. Admins see all tests. Supports filtering by drug name, result, and date range."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Test by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tests/{{testId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tests", "{{testId}}"]
+            },
+            "description": "Get full details of a single test record."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Test",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tests/{{testId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["tests", "{{testId}}"]
+            },
+            "description": "Delete a test record and its associated spectral data and report (cascade). Returns 204 No Content."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Generate PDF Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/generate/{{testId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "generate", "{{testId}}"]
+            },
+            "description": "Generate a PDF report for a completed and classified test. The test must have a classification result (not 'pending') before calling this."
+          },
+          "response": []
+        },
+        {
+          "name": "Download PDF Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/{{testId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "{{testId}}"]
+            },
+            "description": "Download the generated PDF report for a test. Returns the PDF file as application/pdf."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reference Database",
+      "item": [
+        {
+          "name": "List Reference Spectra",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reference?skip=0&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["reference"],
+              "query": [
+                {
+                  "key": "drug_name",
+                  "value": "Paracetamol",
+                  "description": "Filter by drug name (partial match)",
+                  "disabled": true
+                },
+                {
+                  "key": "skip",
+                  "value": "0",
+                  "description": "Pagination offset"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Page size"
+                }
+              ]
+            },
+            "description": "List all reference spectra. Accessible to all authenticated users."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Reference Spectrum (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) {",
+                  "  pm.collectionVariables.set('refId', json.id);",
+                  "  console.log('refId saved: ' + json.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reference",
+              "host": ["{{baseUrl}}"],
+              "path": ["reference"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"drug_name\": \"Paracetamol\",\n  \"manufacturer\": \"PharmaCo Ltd\",\n  \"batch_reference\": \"REF-BATCH-001\",\n  \"wavenumber_data\": [400, 450, 500, 550, 600, 650, 700, 750, 800],\n  \"intensity_data\": [0.12, 0.45, 0.89, 1.23, 0.98, 0.67, 0.34, 0.21, 0.09],\n  \"source\": \"NIST Reference Library\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Add a new reference spectrum to the database. Admin only. wavenumber_data and intensity_data must be the same length."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Reference Spectrum (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reference/{{refId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reference", "{{refId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"drug_name\": \"Paracetamol 500mg\",\n  \"manufacturer\": \"PharmaCo Ltd\",\n  \"source\": \"Updated NIST Reference\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Update an existing reference spectrum. Admin only. Only provide the fields you want to update."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Reference Spectrum (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reference/{{refId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reference", "{{refId}}"]
+            },
+            "description": "Remove a reference spectrum from the database. Admin only. Returns 204 No Content."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Dashboard",
+      "item": [
+        {
+          "name": "Get Admin Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "stats"]
+            },
+            "description": "Aggregate dashboard statistics: total tests, users, counterfeit/genuine counts, detection rate, top drugs, and users by role. Admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "List All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?skip=0&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "pharmacist",
+                  "description": "Filter by role: public | pharmacist | investigator | admin",
+                  "disabled": true
+                },
+                {
+                  "key": "is_active",
+                  "value": "1",
+                  "description": "Filter by active status: 1 (active) or 0 (inactive)",
+                  "disabled": true
+                },
+                {
+                  "key": "skip",
+                  "value": "0",
+                  "description": "Pagination offset"
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Page size (max 200)"
+                }
+              ]
+            },
+            "description": "List all registered users with optional role and active-status filters. Admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{userId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"pharmacist\",\n  \"is_active\": 1,\n  \"organization\": \"HealthCare Plus\",\n  \"designation\": \"Chief Pharmacist\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Update a user's role, active status, or profile fields. Admin only. Only provide the fields you want to change."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

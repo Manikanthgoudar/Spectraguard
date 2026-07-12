@@ -1,0 +1,48 @@
+name: spectra_app
+description: SpectraGuard – AI-powered pharmaceutical authentication via Raman spectroscopy.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # HTTP
+  dio: ^5.7.0
+
+  # State management
+  flutter_riverpod: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Secure storage (tokens)
+  flutter_secure_storage: ^9.2.4
+
+  # File picker
+  file_picker: ^8.1.7
+
+  # Charts
+  fl_chart: ^0.69.0
+
+  # PDF open
+  open_filex: ^4.5.0
+  path_provider: ^2.1.5
+  path: ^1.9.0
+
+  # UI
+  google_fonts: ^6.2.1
+  intl: ^0.20.2
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

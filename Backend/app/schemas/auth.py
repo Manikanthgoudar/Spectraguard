@@ -1,0 +1,60 @@
+from pydantic import BaseModel, EmailStr, field_validator
+from typing import Optional
+from app.models.user import UserRole
+
+
+class SignupRequest(BaseModel):
+    full_name: str
+    email: EmailStr
+    password: str
+    phone: Optional[str] = None
+    role: UserRole = UserRole.public
+    # Role-conditional fields
+    organization: Optional[str] = None
+    license_number: Optional[str] = None
+    designation: Optional[str] = None
+    city: Optional[str] = None
+
+    @field_validator("password")
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        return v
+
+    @field_validator("license_number")
+    @classmethod
+    def license_required_for_roles(cls, v, info):
+        role = info.data.get("role")
+        if role in (UserRole.pharmacist, UserRole.investigator) and not v:
+            raise ValueError("License number is required for pharmacist/investigator roles")
+        return v
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    phone: Optional[str] = None
+    role: UserRole
+    organization: Optional[str] = None
+    license_number: Optional[str] = None
+    designation: Optional[str] = None
+    city: Optional[str] = None
+
+    model_config = {"from_attributes": True}
