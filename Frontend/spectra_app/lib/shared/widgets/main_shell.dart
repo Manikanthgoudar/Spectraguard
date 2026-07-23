@@ -36,18 +36,9 @@ class MainShell extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: child,
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: const Border(
-            top: BorderSide(color: AppColors.border, width: 1),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
-            ),
-          ],
+        decoration: const BoxDecoration(
+          color: AppColors.navBackground,
+          // no top border — flat flush with content
         ),
         child: SafeArea(
           child: SizedBox(
@@ -67,10 +58,10 @@ class MainShell extends ConsumerWidget {
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 6),
+                              horizontal: 16, vertical: 5),
                           decoration: BoxDecoration(
                             color: selected
-                                ? AppColors.primary.withValues(alpha: 0.15)
+                                ? AppColors.navSelected.withValues(alpha: 0.15)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -78,8 +69,8 @@ class MainShell extends ConsumerWidget {
                             tab.icon,
                             size: 22,
                             color: selected
-                                ? AppColors.primary
-                                : AppColors.textSecondary,
+                                ? AppColors.navSelected
+                                : AppColors.navUnselected,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -91,8 +82,8 @@ class MainShell extends ConsumerWidget {
                                 ? FontWeight.w600
                                 : FontWeight.w400,
                             color: selected
-                                ? AppColors.primary
-                                : AppColors.textSecondary,
+                                ? AppColors.navSelected
+                                : AppColors.navUnselected,
                           ),
                         ),
                       ],

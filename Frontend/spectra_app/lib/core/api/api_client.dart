@@ -5,11 +5,20 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Resolves the correct backend base URL depending on the platform:
 /// - Android emulator: 10.0.2.2 maps to the host machine's localhost
-/// - Everything else (Windows, Linux, macOS, Web, physical device on same
-///   network): use localhost / 127.0.0.1
+/// - Android physical device (or any real device on the same Wi-Fi):
+///   use the host machine's LAN IP so the phone can reach the backend.
+/// - Everything else (web, Windows, macOS, Linux desktop): localhost
+
+// ─── UPDATE THIS to your PC's local IP if it changes ───────────────────────
+const String _devMachineIp = '192.168.0.108';
+// ───────────────────────────────────────────────────────────────────────────
+
 String get _baseUrl {
-  if (!kIsWeb && Platform.isAndroid) {
-    return 'http://10.0.2.2:8000';
+  if (kIsWeb) return 'http://localhost:8000';
+  if (Platform.isAndroid) {
+    // Emulator: 10.0.2.2 → host localhost. Physical device: use LAN IP.
+    // Detect emulator by checking for the special emulator host.
+    return 'http://$_devMachineIp:8000';
   }
   return 'http://localhost:8000';
 }

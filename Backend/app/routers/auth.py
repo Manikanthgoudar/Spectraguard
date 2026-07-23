@@ -39,7 +39,13 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    """Authenticate user and return JWT access + refresh tokens."""
+    """Authenticate user and return JWT access + refresh tokens.
+    
+    Only one active device is allowed at a time. If the user is already
+    logged in on a different device, this request will be rejected.
+    To log in on a new device, call /auth/logout first on the active device,
+    or use /auth/force-login to override the existing session.
+    """
     user = db.query(User).filter(User.email == payload.email, User.is_active == 1).first()
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
@@ -47,11 +53,51 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
             detail="Invalid email or password",
         )
 
-    token_data = {"sub": str(user.id), "role": user.role.value}
+    # Enforce single-device session: reject if already logged in on a different device
+    if user.active_device_id and user.active_device_id != payload.device_id:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Already logged in on another device. Please log out first or use /auth/force-login.",
+        )
+
+    # Bind this device to the user's session
+    user.active_device_id = payload.device_id
+    db.commit()
+
+    token_data = {"sub": str(user.id), "role": user.role.value, "device_id": payload.device_id}
     return TokenResponse(
         access_token=create_access_token(token_data),
         refresh_token=create_refresh_token(token_data),
     )
+
+
+@router.post("/force-login", response_model=TokenResponse)
+def force_login(payload: LoginRequest, db: Session = Depends(get_db)):
+    """Force login — kicks out any existing session and logs in on the new device."""
+    user = db.query(User).filter(User.email == payload.email, User.is_active == 1).first()
+    if not user or not verify_password(payload.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+
+    # Override whatever device was active before
+    user.active_device_id = payload.device_id
+    db.commit()
+
+    token_data = {"sub": str(user.id), "role": user.role.value, "device_id": payload.device_id}
+    return TokenResponse(
+        access_token=create_access_token(token_data),
+        refresh_token=create_refresh_token(token_data),
+    )
+
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Clear the active device session so the user can log in elsewhere."""
+    current_user.active_device_id = None
+    db.commit()
+    return {"detail": "Logged out successfully"}
 
 
 @router.post("/refresh-token", response_model=TokenResponse)

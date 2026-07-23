@@ -26,3 +26,4 @@ class User(Base):
     city = Column(String(100), nullable=True)
     is_active = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.utcnow)
+    active_device_id = Column(String(255), nullable=True)  # tracks the currently logged-in device

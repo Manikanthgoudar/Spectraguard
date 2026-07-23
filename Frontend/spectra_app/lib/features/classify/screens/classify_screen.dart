@@ -36,7 +36,7 @@ class _ClassifyScreenState extends ConsumerState<ClassifyScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.navBackground,
         title: const Text('AI Classification'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -144,12 +144,19 @@ class _DrugHeader extends StatelessWidget {
               color: AppColors.primary, size: 24),
         ),
         const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Analysing', style: Theme.of(context).textTheme.bodyMedium),
-            Text(drugName, style: Theme.of(context).textTheme.titleLarge),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Analysing', style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                drugName,
+                style: Theme.of(context).textTheme.titleLarge,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -200,15 +207,19 @@ class _ResultCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(_icon, color: _color, size: 32),
+              Icon(_icon, color: _color, size: 28),
               const SizedBox(width: 10),
-              Text(
-                _label,
-                style: TextStyle(
-                  color: _color,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
+              Expanded(
+                child: Text(
+                  _label,
+                  style: TextStyle(
+                    color: _color,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
               ),
             ],
@@ -262,12 +273,17 @@ class _ResultCard extends StatelessWidget {
             const SizedBox(height: 6),
             Row(
               children: [
-                _Metric('Cosine Similarity',
-                    result.cosineSimilarity!.toStringAsFixed(4)),
-                const SizedBox(width: 20),
-                if (result.euclideanDistance != null)
-                  _Metric('Euclidean Distance',
-                      result.euclideanDistance!.toStringAsFixed(4)),
+                Expanded(
+                  child: _Metric('Cosine Similarity',
+                      result.cosineSimilarity!.toStringAsFixed(4)),
+                ),
+                if (result.euclideanDistance != null) ...[
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _Metric('Euclidean Distance',
+                        result.euclideanDistance!.toStringAsFixed(4)),
+                  ),
+                ],
               ],
             ),
           ],

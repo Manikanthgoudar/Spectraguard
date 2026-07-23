@@ -75,17 +75,8 @@ class _ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.gradientStart, AppColors.gradientEnd],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-      ),
+      // Flat dark navy — matches header and bottom nav
+      color: AppColors.navBackground,
       child: SafeArea(
         bottom: false,
         child: Padding(
@@ -100,7 +91,7 @@ class _ProfileHeader extends StatelessWidget {
                   Text(
                     'Hello,',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: Colors.white.withValues(alpha: 0.65),
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
@@ -109,8 +100,10 @@ class _ProfileHeader extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.2)),
                     ),
                     child: const Icon(
                       Icons.settings_outlined,
@@ -136,7 +129,7 @@ class _ProfileHeader extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 38,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                    backgroundColor: Colors.white.withValues(alpha: 0.15),
                     child: Text(
                       _initials(user.fullName),
                       style: const TextStyle(
@@ -163,7 +156,7 @@ class _ProfileHeader extends StatelessWidget {
                         Text(
                           user.email,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.75),
+                            color: Colors.white.withValues(alpha: 0.65),
                             fontSize: 13,
                           ),
                         ),

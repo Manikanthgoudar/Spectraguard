@@ -35,7 +35,7 @@ class _ReferenceListScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.navBackground,
         title: const Text('Reference Database'),
         actions: [
           if (isAdmin)
@@ -189,12 +189,20 @@ class _RefTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(ref_.drugName,
-                    style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  ref_.drugName,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
                 const SizedBox(height: 2),
                 if (ref_.manufacturer != null)
-                  Text(ref_.manufacturer!,
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    ref_.manufacturer!,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
                 Text(
                   '${ref_.wavenumberData.length} data points · ${DateFormat('MMM y').format(ref_.createdAt)}',
                   style: Theme.of(context)

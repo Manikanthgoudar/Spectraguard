@@ -2,52 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Brand palette – deep purple / violet
+  // Brand palette – deep purple / violet (kept for logic/badges)
   static const primary = Color(0xFF7C3AED);
   static const primaryDark = Color(0xFF5B21B6);
   static const primaryLight = Color(0xFFEDE9FE);
   static const secondary = Color(0xFF06B6D4);      // cyan accent
   static const secondaryLight = Color(0xFFCFFAFE);
 
-  // Backgrounds
-  static const background = Color(0xFF0F0A1E);      // very dark purple-black
-  static const surface = Color(0xFF1A1035);          // dark card surface
-  static const surfaceElevated = Color(0xFF241850);  // slightly lighter card
-  static const surfaceLight = Color(0xFF2D2060);     // hover / selected
+  // ── Light-theme backgrounds ──────────────────────────────────────────────
+  static const background = Color(0xFFF1F5F9);      // light grey page bg
+  static const surface = Color(0xFFFFFFFF);          // white cards
+  static const surfaceElevated = Color(0xFFF8FAFC);  // slightly off-white
+  static const surfaceLight = Color(0xFFEDE9FE);     // hover/selected (lavender)
 
-  // Text
-  static const textPrimary = Color(0xFFF0EEFF);
-  static const textSecondary = Color(0xFF9D8FBF);
-  static const textHint = Color(0xFF5C5080);
+  // ── Shell chrome (header + bottom nav) ──────────────────────────────────
+  static const navBackground = Color(0xFF0F172A);    // dark navy — same top & bottom
+  static const navSelected = Color(0xFF38BDF8);      // sky-blue selected icon/label
+  static const navUnselected = Color(0xFF94A3B8);    // slate-400 unselected
 
-  // Borders & dividers
-  static const border = Color(0xFF3D2E6B);
-  static const borderLight = Color(0xFF2A1F4F);
+  // ── Text ─────────────────────────────────────────────────────────────────
+  static const textPrimary = Color(0xFF0F172A);      // near-black
+  static const textSecondary = Color(0xFF64748B);    // slate-500
+  static const textHint = Color(0xFFCBD5E1);         // slate-300
+
+  // ── Borders & dividers ───────────────────────────────────────────────────
+  static const border = Color(0xFFE2E8F0);           // slate-200
+  static const borderLight = Color(0xFFF1F5F9);
 
   // Semantic
-  static const error = Color(0xFFFF5C5C);
-  static const warning = Color(0xFFFFB300);
+  static const error = Color(0xFFEF4444);
+  static const warning = Color(0xFFF59E0B);
   static const success = Color(0xFF22C55E);
-  static const cardShadow = Color(0x40000000);
+  static const cardShadow = Color(0x14000000);
 
-  // Classification colours
+  // Classification colours (unchanged — used in badges)
   static const genuine = Color(0xFF22C55E);
-  static const counterfeit = Color(0xFFFF5C5C);
-  static const requiresVerification = Color(0xFFFFB300);
-  static const pending = Color(0xFF9D8FBF);
+  static const counterfeit = Color(0xFFEF4444);
+  static const requiresVerification = Color(0xFFF59E0B);
+  static const pending = Color(0xFF94A3B8);
 
-  // Gradient stops
+  // Gradient stops (kept for header)
   static const gradientStart = Color(0xFF7C3AED);
   static const gradientEnd = Color(0xFF06B6D4);
 }
 
 class AppTheme {
   static ThemeData get light {
-    final base = ThemeData.dark(useMaterial3: true);
+    final base = ThemeData.light(useMaterial3: true);
     return base.copyWith(
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
         surface: AppColors.surface,
         error: AppColors.error,
       ).copyWith(
@@ -98,21 +103,22 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: AppColors.navBackground,
+        foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
         titleTextStyle: GoogleFonts.inter(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: Colors.white,
         ),
         surfaceTintColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 0,
+        shadowColor: AppColors.cardShadow,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: AppColors.border),
@@ -207,15 +213,15 @@ class AppTheme {
         space: 1,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
+        backgroundColor: AppColors.navBackground,
+        selectedItemColor: AppColors.navSelected,
+        unselectedItemColor: AppColors.navUnselected,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.surfaceElevated,
-        contentTextStyle: GoogleFonts.inter(color: AppColors.textPrimary),
+        backgroundColor: AppColors.navBackground,
+        contentTextStyle: GoogleFonts.inter(color: Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         behavior: SnackBarBehavior.floating,
       ),
@@ -230,11 +236,11 @@ class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? AppColors.primary : AppColors.textSecondary,
+          (s) => s.contains(WidgetState.selected) ? AppColors.primary : Colors.white,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (s) => s.contains(WidgetState.selected)
-              ? AppColors.primary.withValues(alpha: 0.3)
+              ? AppColors.primary.withValues(alpha: 0.5)
               : AppColors.border,
         ),
       ),

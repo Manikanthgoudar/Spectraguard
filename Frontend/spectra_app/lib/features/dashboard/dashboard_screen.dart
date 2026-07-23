@@ -27,7 +27,7 @@ class DashboardScreen extends ConsumerWidget {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // Header with gradient
+            // Dark navy header — matches bottom nav color
             SliverToBoxAdapter(
               child: _DashboardHeader(user: user),
             ),
@@ -122,19 +122,10 @@ class _DashboardHeader extends StatelessWidget {
             : 'Good evening';
 
     return Container(
+      // Flat dark navy — same colour as the bottom nav bar
+      color: AppColors.navBackground,
       padding: EdgeInsets.fromLTRB(
-          20, MediaQuery.of(context).padding.top + 20, 20, 28),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.gradientStart, AppColors.gradientEnd],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
-      ),
+          20, MediaQuery.of(context).padding.top + 16, 20, 24),
       child: Row(
         children: [
           Expanded(
@@ -144,7 +135,7 @@ class _DashboardHeader extends StatelessWidget {
                 Text(
                   greeting,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.8),
+                    color: Colors.white.withValues(alpha: 0.65),
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                   ),
@@ -163,7 +154,7 @@ class _DashboardHeader extends StatelessWidget {
                   Text(
                     user!.organization!,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
+                      color: Colors.white.withValues(alpha: 0.55),
                       fontSize: 12,
                     ),
                   ),
@@ -178,10 +169,10 @@ class _DashboardHeader extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: Colors.white.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.4), width: 2),
+                    color: Colors.white.withValues(alpha: 0.25), width: 1.5),
               ),
               child: user != null
                   ? Center(
@@ -235,25 +226,36 @@ class _QuickActions extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
       child: Row(
         children: actions
-            .map((a) => Expanded(
+            .asMap()
+            .entries
+            .map((entry) {
+              final isLast = entry.key == actions.length - 1;
+              final a = entry.value;
+              return Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 10),
+                    padding: EdgeInsets.only(right: isLast ? 0 : 10),
                     child: GestureDetector(
                       onTap: () => context.go(a.$4),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         decoration: BoxDecoration(
-                          color: a.$3.withValues(alpha: 0.1),
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                              color: a.$3.withValues(alpha: 0.25)),
+                          border: Border.all(color: AppColors.border),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: AppColors.cardShadow,
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Column(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: a.$3.withValues(alpha: 0.15),
+                                color: a.$3.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(a.$2, color: a.$3, size: 22),
@@ -261,8 +263,8 @@ class _QuickActions extends StatelessWidget {
                             const SizedBox(height: 8),
                             Text(
                               a.$1,
-                              style: TextStyle(
-                                color: a.$3,
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 height: 1.3,
@@ -273,8 +275,8 @@ class _QuickActions extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
-                ))
+                  ));
+            })
             .toList(),
       ),
     );
@@ -352,6 +354,13 @@ class _TestCard extends StatelessWidget {
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppColors.border),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.cardShadow,
+              blurRadius: 6,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -359,7 +368,7 @@ class _TestCard extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.12),
+                color: AppColors.primary.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(Icons.science_outlined,
@@ -377,6 +386,8 @@ class _TestCard extends StatelessWidget {
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -387,6 +398,7 @@ class _TestCard extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(width: 8),
             ClassificationBadge(
               result: test.classificationResult,
               compact: true,

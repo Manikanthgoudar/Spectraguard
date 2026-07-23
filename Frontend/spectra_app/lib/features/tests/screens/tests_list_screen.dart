@@ -40,7 +40,7 @@ class _TestsListScreenState extends ConsumerState<TestsListScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.navBackground,
         title: const Text('Test History'),
         actions: [
           IconButton(
@@ -229,15 +229,22 @@ class _TestTile extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(test.drugName,
-                        style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      test.drugName,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Text(
-                          DateFormat('MMM d, y  HH:mm')
-                              .format(test.testedAt),
-                          style: Theme.of(context).textTheme.bodyMedium,
+                        Flexible(
+                          child: Text(
+                            DateFormat('MMM d, y  HH:mm')
+                                .format(test.testedAt),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         if (test.confidenceScore != null) ...[
                           const Text('  ·  ',
@@ -255,6 +262,7 @@ class _TestTile extends ConsumerWidget {
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
               ClassificationBadge(
                 result: test.classificationResult,
                 compact: true,

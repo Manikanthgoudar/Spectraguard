@@ -99,7 +99,7 @@ class _UploadSpectraScreenState extends ConsumerState<UploadSpectraScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.navBackground,
         title: const Text('Upload Spectra')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

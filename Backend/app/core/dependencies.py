@@ -36,6 +36,16 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found or deactivated",
         )
+
+    # Validate that the token's device still matches the active session
+    token_device_id = payload.get("device_id")
+    if token_device_id and user.active_device_id != token_device_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session expired. You have been logged in on another device.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     return user
 
 

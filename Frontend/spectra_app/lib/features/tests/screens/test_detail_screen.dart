@@ -19,7 +19,7 @@ class TestDetailScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.navBackground,
         title: const Text('Test Details')),
       body: testAsync.when(
         loading: () => const LoadingOverlay(),
@@ -244,13 +244,18 @@ class _InfoRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 140,
-            child: Text(label,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: AppColors.textSecondary)),
+            width: 130,
+            child: Text(
+              label,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: AppColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
           ),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(value,
                 style: Theme.of(context).textTheme.bodyLarge),

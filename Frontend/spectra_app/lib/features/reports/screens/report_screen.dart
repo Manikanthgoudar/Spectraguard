@@ -20,7 +20,7 @@ class ReportScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.navBackground,
         title: const Text('Report'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -30,7 +30,7 @@ class ReportScreen extends ConsumerWidget {
       body: testAsync.when(
         loading: () => const LoadingOverlay(),
         error: (e, _) => Center(child: Text('Error: $e')),
-        data: (test) => Padding(
+        data: (test) => SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -59,12 +59,14 @@ class ReportScreen extends ConsumerWidget {
                     .textTheme
                     .titleMedium
                     ?.copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
 
               // Status / error messages
               if (reportState.error != null)
                 Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: AppColors.error.withValues(alpha: 0.08),
@@ -85,6 +87,7 @@ class ReportScreen extends ConsumerWidget {
 
               if (reportState.localPath != null)
                 Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: AppColors.genuine.withValues(alpha: 0.08),
@@ -107,8 +110,7 @@ class ReportScreen extends ConsumerWidget {
                   ),
                 ),
 
-              const SizedBox(height: 24),
-              const Spacer(),
+              const SizedBox(height: 32),
 
               // Generate button
               ElevatedButton.icon(
@@ -152,10 +154,7 @@ class ReportScreen extends ConsumerWidget {
                             .download();
                         final savedPath =
                             ref.read(reportProvider(testId)).localPath;
-                        // On native, open the saved file; on web the browser
-                        // download dialog was already triggered automatically.
                         if (!kIsWeb && savedPath != null) {
-                          // ignore: depend_on_referenced_packages
                           await _openNativeFile(savedPath);
                         }
                         final error =
@@ -187,7 +186,7 @@ class ReportScreen extends ConsumerWidget {
                 icon: const Icon(Icons.arrow_back),
                 label: const Text('Back to Test'),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
             ],
           ),
         ),
