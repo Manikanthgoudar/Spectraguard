@@ -12,7 +12,11 @@ import 'package:spectra_app/features/reports/screens/report_screen.dart';
 import 'package:spectra_app/features/reference/screens/reference_list_screen.dart';
 import 'package:spectra_app/features/admin/screens/admin_screen.dart';
 import 'package:spectra_app/features/admin/screens/admin_users_screen.dart';
+import 'package:spectra_app/features/about/about_screen.dart';
 import 'package:spectra_app/features/profile/screens/profile_screen.dart';
+import 'package:spectra_app/features/settings/screens/settings_screen.dart';
+import 'package:spectra_app/features/chat/screens/chat_screen.dart';
+import 'package:spectra_app/features/nearby/screens/nearby_screen.dart';
 import 'package:spectra_app/shared/widgets/main_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -88,6 +92,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/profile',
             builder: (_, __) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (_, __) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/about',
+            builder: (_, __) => const AboutScreen(),
+          ),
+          GoRoute(
+            path: '/chat',
+            builder: (_, __) => const ChatScreen(),
+          ),
+          GoRoute(
+            path: '/nearby',
+            builder: (_, __) => const NearbyScreen(),
           ),
         ],
       ),

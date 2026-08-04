@@ -4,6 +4,10 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SpectraGuard needs your location to find nearby pharmacies, laboratories, hospitals, and regulatory offices.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>SpectraGuard needs your location to find nearby facilities.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:spectra_app/core/auth/auth_provider.dart';
 import 'package:spectra_app/core/theme/app_theme.dart';
+import 'package:spectra_app/core/utils/responsive.dart';
 import 'package:spectra_app/features/reference/providers/reference_provider.dart';
 import 'package:spectra_app/shared/models/reference.dart';
 import 'package:spectra_app/shared/models/user.dart';
@@ -31,9 +32,10 @@ class _ReferenceListScreenState
     final refsAsync = ref.watch(referenceProvider);
     final user = ref.watch(authProvider).user;
     final isAdmin = user?.role == UserRole.admin;
+    final padding = context.pagePadding;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: AppColors.navBackground,
         title: const Text('Reference Database'),
@@ -48,8 +50,8 @@ class _ReferenceListScreenState
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          ContentContainer(
+            padding: padding.add(const EdgeInsets.fromLTRB(0, 12, 0, 0)),
             child: TextField(
               controller: _searchCtrl,
               decoration: InputDecoration(
@@ -60,9 +62,7 @@ class _ReferenceListScreenState
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchCtrl.clear();
-                          ref
-                              .read(referenceProvider.notifier)
-                              .search('');
+                          ref.read(referenceProvider.notifier).search('');
                           setState(() {});
                         },
                       )
@@ -96,18 +96,24 @@ class _ReferenceListScreenState
                 return RefreshIndicator(
                   onRefresh: () =>
                       ref.read(referenceProvider.notifier).search(''),
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 4),
-                    itemCount: refs.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: 10),
-                    itemBuilder: (_, i) => _RefTile(
-                      ref_: refs[i],
-                      isAdmin: isAdmin,
-                      onDelete: () => _confirmDelete(context, refs[i]),
-                    ),
-                  ),
+                  child: context.isWide
+                      ? _WideRefGrid(
+                          refs: refs, isAdmin: isAdmin,
+                          onDelete: (r) => _confirmDelete(context, r),
+                          padding: padding)
+                      : ListView.separated(
+                          padding: padding.add(
+                              const EdgeInsets.symmetric(vertical: 4)),
+                          itemCount: refs.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (_, i) => _RefTile(
+                            ref_: refs[i],
+                            isAdmin: isAdmin,
+                            onDelete: () =>
+                                _confirmDelete(context, refs[i]),
+                          ),
+                        ),
                 );
               },
             ),
@@ -148,6 +154,40 @@ class _ReferenceListScreenState
       const SnackBar(
         content: Text(
             'Add reference via POST /reference API with wavenumber & intensity arrays'),
+      ),
+    );
+  }
+}
+
+class _WideRefGrid extends StatelessWidget {
+  const _WideRefGrid({
+    required this.refs,
+    required this.isAdmin,
+    required this.onDelete,
+    required this.padding,
+  });
+  final List<ReferenceSpectrum> refs;
+  final bool isAdmin;
+  final void Function(ReferenceSpectrum) onDelete;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return ContentContainer(
+      child: GridView.builder(
+        padding: padding.add(const EdgeInsets.symmetric(vertical: 4)),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: context.isDesktop ? 2 : 1,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 10,
+          childAspectRatio: context.isDesktop ? 3.5 : 4,
+        ),
+        itemCount: refs.length,
+        itemBuilder: (_, i) => _RefTile(
+          ref_: refs[i],
+          isAdmin: isAdmin,
+          onDelete: () => onDelete(refs[i]),
+        ),
       ),
     );
   }

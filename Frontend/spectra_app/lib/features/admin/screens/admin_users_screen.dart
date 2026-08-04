@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spectra_app/core/theme/app_theme.dart';
+import 'package:spectra_app/core/utils/responsive.dart';
 import 'package:spectra_app/features/admin/providers/admin_provider.dart';
 import 'package:spectra_app/shared/models/admin.dart';
 import 'package:spectra_app/shared/widgets/loading_overlay.dart';
@@ -21,9 +22,10 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
   @override
   Widget build(BuildContext context) {
     final usersAsync = ref.watch(adminUsersProvider);
+    final padding = context.pagePadding;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: AppColors.navBackground,
         title: const Text('Manage Users'),
@@ -37,8 +39,8 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
       body: Column(
         children: [
           // Filter bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          ContentContainer(
+            padding: padding.add(const EdgeInsets.fromLTRB(0, 12, 0, 0)),
             child: Row(
               children: [
                 Expanded(
@@ -92,14 +94,31 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                 if (users.isEmpty) {
                   return const Center(child: Text('No users found'));
                 }
-                return ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 4),
-                  itemCount: users.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: 10),
-                  itemBuilder: (_, i) => _UserTile(user: users[i]),
-                );
+                return context.isWide
+                    ? ContentContainer(
+                        child: GridView.builder(
+                          padding: padding.add(
+                              const EdgeInsets.symmetric(vertical: 4)),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: context.isDesktop ? 2 : 1,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 10,
+                            childAspectRatio:
+                                context.isDesktop ? 3.6 : 4,
+                          ),
+                          itemCount: users.length,
+                          itemBuilder: (_, i) => _UserTile(user: users[i]),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: padding.add(
+                            const EdgeInsets.symmetric(vertical: 4)),
+                        itemCount: users.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 10),
+                        itemBuilder: (_, i) => _UserTile(user: users[i]),
+                      );
               },
             ),
           ),

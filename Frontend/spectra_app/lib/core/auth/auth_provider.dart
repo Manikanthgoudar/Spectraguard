@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spectra_app/core/api/api_client.dart';
 import 'package:spectra_app/core/auth/auth_service.dart';
@@ -40,14 +41,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _init() async {
     state = state.copyWith(isLoading: true);
     try {
-      if (await _service.isLoggedIn()) {
+      final loggedIn = await _service.isLoggedIn();
+      if (loggedIn) {
         final user = await _service.getMe();
         state = state.copyWith(user: user, isLoading: false);
       } else {
         state = state.copyWith(isLoading: false);
       }
     } catch (_) {
-      state = state.copyWith(isLoading: false);
+      // Token was considered valid but the server rejected it (e.g. DB reset,
+      // secret key change). Clear local storage without waiting on the server
+      // (the server call in logout() could itself hang and keep isLoading true).
+      _service.logout().ignore();
+      state = const AuthState(); // isLoading defaults to false
     }
   }
 
@@ -56,7 +62,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final user = await _service.login(email, password);
       state = state.copyWith(user: user, isLoading: false);
-    } on Exception catch (e) {
+    } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -86,7 +92,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         city: city,
       );
       state = state.copyWith(user: user, isLoading: false);
-    } on Exception catch (e) {
+    } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -94,6 +100,106 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     await _service.logout();
     state = const AuthState();
+  }
+
+  Future<bool> updateProfile({
+    String? fullName,
+    String? phone,
+    String? city,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final updated = await _service.updateProfile(
+        fullName: fullName,
+        phone: phone,
+        city: city,
+      );
+      state = state.copyWith(user: updated, isLoading: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    await _service.deleteAccount();
+    state = const AuthState();
+  }
+
+  // ── Profile photo ─────────────────────────────────────────────────────────
+
+  Future<bool> uploadProfilePhoto({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
+    try {
+      final updated = await _service.uploadProfilePhoto(
+        bytes: bytes,
+        fileName: fileName,
+      );
+      state = state.copyWith(user: updated);
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteProfilePhoto() async {
+    try {
+      final updated = await _service.deleteProfilePhoto();
+      state = state.copyWith(user: updated);
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
+  // ── Account security ──────────────────────────────────────────────────────
+
+  /// Returns null on success, or an error message string on failure.
+  Future<String?> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _service.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return null;
+    } catch (e) {
+      return _extractMessage(e);
+    }
+  }
+
+  /// Returns null on success, or an error message string on failure.
+  Future<String?> changeEmail({
+    required String newEmail,
+    required String password,
+  }) async {
+    try {
+      final updated = await _service.changeEmail(
+        newEmail: newEmail,
+        password: password,
+      );
+      state = state.copyWith(user: updated);
+      return null;
+    } catch (e) {
+      return _extractMessage(e);
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  String _extractMessage(Object e) {
+    final s = e.toString();
+    // Try to pull the detail field from a DioException response
+    final match = RegExp(r'"detail"\s*:\s*"([^"]+)"').firstMatch(s);
+    if (match != null) return match.group(1)!;
+    return s;
   }
 }
 

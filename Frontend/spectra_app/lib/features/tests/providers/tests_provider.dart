@@ -61,7 +61,16 @@ class TestsNotifier extends AsyncNotifier<List<SpectraTest>> {
 // ── Single test ────────────────────────────────────────────────────────────
 final testDetailProvider =
     FutureProvider.family<SpectraTest, int>((ref, testId) async {
-  final dio = ref.read(dioProvider);
-  final resp = await dio.get('/tests/$testId');
-  return SpectraTest.fromJson(resp.data as Map<String, dynamic>);
+  try {
+    final dio = ref.read(dioProvider);
+    final resp = await dio.get('/tests/$testId');
+    return SpectraTest.fromJson(resp.data as Map<String, dynamic>);
+  } catch (e) {
+    final cachedList = ref.read(testsProvider).value;
+    if (cachedList != null) {
+      final found = cachedList.where((t) => t.id == testId).firstOrNull;
+      if (found != null) return found;
+    }
+    rethrow;
+  }
 });

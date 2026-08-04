@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:spectra_app/core/theme/app_theme.dart';
+import 'package:spectra_app/core/utils/responsive.dart';
 import 'package:spectra_app/features/tests/providers/tests_provider.dart';
 import 'package:spectra_app/shared/models/test.dart';
+import 'package:spectra_app/shared/widgets/app_shell_app_bar.dart';
 import 'package:spectra_app/shared/widgets/classification_badge.dart';
 import 'package:spectra_app/shared/widgets/loading_overlay.dart';
 
@@ -17,10 +19,8 @@ class TestDetailScreen extends ConsumerWidget {
     final testAsync = ref.watch(testDetailProvider(testId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.navBackground,
-        title: const Text('Test Details')),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppShellAppBar(title: 'Test Details'),
       body: testAsync.when(
         loading: () => const LoadingOverlay(),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -36,51 +36,94 @@ class _TestDetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final padding = context.pagePadding;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Result card
-          _ResultCard(test: test),
-          const SizedBox(height: 20),
-
-          // Drug info
-          _Section(
-            title: 'Drug Information',
-            children: [
-              _InfoRow('Drug Name', test.drugName),
-              if (test.batchNumber != null)
-                _InfoRow('Batch Number', test.batchNumber!),
-              if (test.manufacturer != null)
-                _InfoRow('Manufacturer', test.manufacturer!),
-              if (test.expiryDate != null)
-                _InfoRow('Expiry Date', test.expiryDate!),
-              _InfoRow('Test Date',
-                  DateFormat('MMMM d, y – HH:mm').format(test.testedAt)),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          if (test.confidenceScore != null) ...[
-            _Section(
-              title: 'Classification Details',
-              children: [
-                _InfoRow('Confidence',
-                    '${(test.confidenceScore! * 100).toStringAsFixed(2)}%'),
-                if (test.matchedReferenceId != null)
-                  _InfoRow('Matched Reference',
-                      'Ref #${test.matchedReferenceId}'),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          // Actions
-          _Actions(test: test),
-        ],
+      child: ContentContainer(
+        padding: padding.add(const EdgeInsets.symmetric(vertical: 20)),
+        child: context.isDesktop
+            ? _desktopLayout(context)
+            : _mobileLayout(context),
       ),
     );
+  }
+
+  Widget _mobileLayout(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ResultCard(test: test),
+        const SizedBox(height: 20),
+        _Section(
+          title: 'Drug Information',
+          children: _drugInfoRows(),
+        ),
+        const SizedBox(height: 16),
+        if (test.confidenceScore != null) ...[
+          _Section(
+            title: 'Classification Details',
+            children: _classificationRows(),
+          ),
+          const SizedBox(height: 16),
+        ],
+        _Actions(test: test),
+      ],
+    );
+  }
+
+  Widget _desktopLayout(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ResultCard(test: test),
+              const SizedBox(height: 20),
+              _Section(
+                title: 'Drug Information',
+                children: _drugInfoRows(),
+              ),
+              if (test.confidenceScore != null) ...[
+                const SizedBox(height: 16),
+                _Section(
+                  title: 'Classification Details',
+                  children: _classificationRows(),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(width: 28),
+        SizedBox(
+          width: 280,
+          child: _Actions(test: test),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _drugInfoRows() {
+    return [
+      _InfoRow('Drug Name', test.drugName),
+      if (test.batchNumber != null) _InfoRow('Batch Number', test.batchNumber!),
+      if (test.manufacturer != null)
+        _InfoRow('Manufacturer', test.manufacturer!),
+      if (test.expiryDate != null) _InfoRow('Expiry Date', test.expiryDate!),
+      _InfoRow('Test Date',
+          DateFormat('MMMM d, y – HH:mm').format(test.testedAt)),
+    ];
+  }
+
+  List<Widget> _classificationRows() {
+    final conf = test.confidenceScore!;
+    final score = conf > 1.0 ? conf : conf * 100.0;
+    return [
+      _InfoRow('Confidence', '${score.toStringAsFixed(1)}%'),
+      if (test.matchedReferenceId != null)
+        _InfoRow('Matched Reference', 'Ref #${test.matchedReferenceId}'),
+    ];
   }
 }
 
@@ -135,21 +178,31 @@ class _ResultCard extends StatelessWidget {
           Text(desc, style: Theme.of(context).textTheme.bodyLarge),
           if (test.confidenceScore != null) ...[
             const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: test.confidenceScore,
-              backgroundColor:
-                  _colorForResult(test.classificationResult).withValues(alpha: 0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(
-                _colorForResult(test.classificationResult),
-              ),
-              borderRadius: BorderRadius.circular(4),
-              minHeight: 6,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Confidence: ${(test.confidenceScore! * 100).toStringAsFixed(1)}%',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Builder(builder: (ctx) {
+              final conf = test.confidenceScore!;
+              final score = conf > 1.0 ? conf : conf * 100.0;
+              final val = conf > 1.0 ? (conf / 100.0).clamp(0.0, 1.0) : conf.clamp(0.0, 1.0);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LinearProgressIndicator(
+                    value: val,
+                    backgroundColor:
+                        _colorForResult(test.classificationResult).withValues(alpha: 0.2),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _colorForResult(test.classificationResult),
+                    ),
+                    borderRadius: BorderRadius.circular(4),
+                    minHeight: 6,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Confidence: ${score.toStringAsFixed(1)}%',
+                    style: Theme.of(ctx).textTheme.bodyMedium,
+                  ),
+                ],
+              );
+            }),
           ],
         ],
       ),
@@ -210,12 +263,13 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: cs.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "spectra_app (physical device)",
+      "request": "launch",
+      "type": "dart",
+      "args": ["--dart-define=DEV_MACHINE_IP=192.168.31.117"]
+    },
+    {
+      "name": "spectra_app (emulator)",
+      "request": "launch",
+      "type": "dart"
+    }
+  ]
+}

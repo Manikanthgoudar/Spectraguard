@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spectra_app/core/theme/app_theme.dart';
+import 'package:spectra_app/core/utils/responsive.dart';
 import 'package:spectra_app/features/admin/providers/admin_provider.dart';
 import 'package:spectra_app/shared/widgets/loading_overlay.dart';
 import 'package:spectra_app/shared/widgets/stat_card.dart';
@@ -12,9 +13,10 @@ class AdminScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statsAsync = ref.watch(adminStatsProvider);
+    final padding = context.pagePadding;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: AppColors.navBackground,
         title: const Text('Admin Dashboard'),
@@ -34,82 +36,121 @@ class AdminScreen extends ConsumerWidget {
         loading: () => const LoadingOverlay(message: 'Loading stats…'),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (stats) => SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Overview',
-                  style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 14),
+          child: ContentContainer(
+            padding: padding.add(const EdgeInsets.symmetric(vertical: 20)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Overview',
+                    style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 14),
 
-              // Stats grid
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.4,
-                children: [
-                  StatCard(
-                    label: 'Total Tests',
-                    value: stats.totalTests.toString(),
-                    icon: Icons.science,
-                    color: AppColors.primary,
-                  ),
-                  StatCard(
-                    label: 'Total Users',
-                    value: stats.totalUsers.toString(),
-                    icon: Icons.people,
-                    color: AppColors.secondary,
-                  ),
-                  StatCard(
-                    label: 'Genuine',
-                    value: stats.genuineCount.toString(),
-                    icon: Icons.check_circle,
-                    color: AppColors.genuine,
-                  ),
-                  StatCard(
-                    label: 'Counterfeit',
-                    value: stats.counterfeitsCount.toString(),
-                    icon: Icons.dangerous,
-                    color: AppColors.counterfeit,
-                  ),
-                  StatCard(
-                    label: 'Needs Verify',
-                    value: stats.requiresVerificationCount.toString(),
-                    icon: Icons.warning_amber,
-                    color: AppColors.requiresVerification,
-                  ),
-                  StatCard(
-                    label: 'Detection Rate',
-                    value:
-                        '${stats.counterfeiteDetectionRate.toStringAsFixed(1)}%',
-                    icon: Icons.analytics,
-                    color: AppColors.warning,
-                  ),
+                // Stats grid — responsive columns
+                LayoutBuilder(
+                  builder: (ctx, constraints) {
+                    final cols = context.statGridColumns;
+                    return GridView.count(
+                      crossAxisCount: cols,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: context.isDesktop ? 1.6 : 1.4,
+                      children: [
+                        StatCard(
+                          label: 'Total Tests',
+                          value: stats.totalTests.toString(),
+                          icon: Icons.science,
+                          color: AppColors.primary,
+                        ),
+                        StatCard(
+                          label: 'Total Users',
+                          value: stats.totalUsers.toString(),
+                          icon: Icons.people,
+                          color: AppColors.secondary,
+                        ),
+                        StatCard(
+                          label: 'Genuine',
+                          value: stats.genuineCount.toString(),
+                          icon: Icons.check_circle,
+                          color: AppColors.genuine,
+                        ),
+                        StatCard(
+                          label: 'Counterfeit',
+                          value: stats.counterfeitsCount.toString(),
+                          icon: Icons.dangerous,
+                          color: AppColors.counterfeit,
+                        ),
+                        StatCard(
+                          label: 'Needs Verify',
+                          value: stats.requiresVerificationCount.toString(),
+                          icon: Icons.warning_amber,
+                          color: AppColors.requiresVerification,
+                        ),
+                        StatCard(
+                          label: 'Detection Rate',
+                          value:
+                              '${stats.counterfeiteDetectionRate.toStringAsFixed(1)}%',
+                          icon: Icons.analytics,
+                          color: AppColors.warning,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 28),
+
+                // Two-column layout on desktop
+                if (context.isDesktop)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Users by Role',
+                                style: Theme.of(context).textTheme.titleLarge),
+                            const SizedBox(height: 14),
+                            _RoleBreakdown(usersByRole: stats.usersByRole),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Most Tested Drugs',
+                                style: Theme.of(context).textTheme.titleLarge),
+                            const SizedBox(height: 14),
+                            _DrugRanking(drugs: stats.mostTestedDrugs),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                else ...[
+                  Text('Users by Role',
+                      style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 14),
+                  _RoleBreakdown(usersByRole: stats.usersByRole),
+                  const SizedBox(height: 28),
+                  Text('Most Tested Drugs',
+                      style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 14),
+                  _DrugRanking(drugs: stats.mostTestedDrugs),
                 ],
-              ),
 
-              const SizedBox(height: 28),
-              Text('Users by Role',
-                  style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 14),
-              _RoleBreakdown(usersByRole: stats.usersByRole),
-
-              const SizedBox(height: 28),
-              Text('Most Tested Drugs',
-                  style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 14),
-              _DrugRanking(drugs: stats.mostTestedDrugs),
-
-              const SizedBox(height: 24),
-              OutlinedButton.icon(
-                onPressed: () => context.go('/admin/users'),
-                icon: const Icon(Icons.manage_accounts),
-                label: const Text('Manage Users'),
-              ),
-            ],
+                const SizedBox(height: 24),
+                OutlinedButton.icon(
+                  onPressed: () => context.go('/admin/users'),
+                  icon: const Icon(Icons.manage_accounts),
+                  label: const Text('Manage Users'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

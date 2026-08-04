@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:spectra_app/core/theme/app_theme.dart';
+import 'package:spectra_app/core/utils/responsive.dart';
 import 'package:spectra_app/features/reports/providers/reports_provider.dart';
 import 'package:spectra_app/features/tests/providers/tests_provider.dart';
 import 'package:spectra_app/shared/widgets/loading_overlay.dart';
@@ -18,7 +19,7 @@ class ReportScreen extends ConsumerWidget {
     final testAsync = ref.watch(testDetailProvider(testId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: AppColors.navBackground,
         title: const Text('Report'),
@@ -31,10 +32,13 @@ class ReportScreen extends ConsumerWidget {
         loading: () => const LoadingOverlay(),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (test) => SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+          child: ContentContainer(
+            padding: context.pagePadding
+                .add(const EdgeInsets.symmetric(vertical: 24)),
+            child: FormContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
               const SizedBox(height: 20),
               // PDF icon
               Container(
@@ -188,10 +192,12 @@ class ReportScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
             ],
-          ),
-        ),
-      ),
-    );
+          ),           // end Column
+        ),             // end FormContainer
+      ),               // end ContentContainer
+    ),                 // end SingleChildScrollView (data callback)
+      ),               // end testAsync.when
+    );                 // end Scaffold
   }
 }
 

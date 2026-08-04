@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:spectra_app/core/theme/app_theme.dart';
+import 'package:spectra_app/core/utils/responsive.dart';
 import 'package:spectra_app/features/tests/providers/tests_provider.dart';
 import 'package:spectra_app/shared/models/test.dart';
+import 'package:spectra_app/shared/widgets/app_shell_app_bar.dart';
 import 'package:spectra_app/shared/widgets/classification_badge.dart';
 
 class TestsListScreen extends ConsumerStatefulWidget {
@@ -36,12 +38,13 @@ class _TestsListScreenState extends ConsumerState<TestsListScreen> {
   @override
   Widget build(BuildContext context) {
     final testsAsync = ref.watch(testsProvider);
+    final isWide = context.isWide;
+    final padding = context.pagePadding;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.navBackground,
-        title: const Text('Test History'),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppShellAppBar(
+        title: 'Test History',
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -53,8 +56,8 @@ class _TestsListScreenState extends ConsumerState<TestsListScreen> {
       body: Column(
         children: [
           // Search + filter bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          ContentContainer(
+            padding: padding.add(const EdgeInsets.fromLTRB(0, 12, 0, 0)),
             child: Row(
               children: [
                 Expanded(
@@ -78,12 +81,15 @@ class _TestsListScreenState extends ConsumerState<TestsListScreen> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                _FilterDropdown(
-                  value: _filterResult,
-                  onChanged: (v) {
-                    setState(() => _filterResult = v);
-                    _search();
-                  },
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 120),
+                  child: _FilterDropdown(
+                    value: _filterResult,
+                    onChanged: (v) {
+                      setState(() => _filterResult = v);
+                      _search();
+                    },
+                  ),
                 ),
               ],
             ),
@@ -95,21 +101,21 @@ class _TestsListScreenState extends ConsumerState<TestsListScreen> {
                   const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('Error: $e')),
               data: (tests) {
-                if (tests.isEmpty) {
-                  return _Empty();
-                }
+                if (tests.isEmpty) return _Empty();
                 return RefreshIndicator(
                   onRefresh: () =>
                       ref.read(testsProvider.notifier).refresh(),
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 4),
-                    itemCount: tests.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: 10),
-                    itemBuilder: (_, i) =>
-                        _TestTile(test: tests[i]),
-                  ),
+                  child: isWide
+                      ? _WideTestsGrid(tests: tests, padding: padding)
+                      : ListView.separated(
+                          padding: padding.add(
+                              const EdgeInsets.symmetric(vertical: 4)),
+                          itemCount: tests.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (_, i) =>
+                              _TestTile(test: tests[i]),
+                        ),
                 );
               },
             ),
@@ -135,13 +141,14 @@ class _FilterDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       height: 52,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: cs.outline),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String?>(
@@ -208,9 +215,9 @@ class _TestTile extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Row(
             children: [
@@ -244,6 +251,7 @@ class _TestTile extends ConsumerWidget {
                                 .format(test.testedAt),
                             style: Theme.of(context).textTheme.bodyMedium,
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                         if (test.confidenceScore != null) ...[
@@ -251,7 +259,7 @@ class _TestTile extends ConsumerWidget {
                               style:
                                   TextStyle(color: AppColors.textSecondary)),
                           Text(
-                            '${(test.confidenceScore! * 100).toStringAsFixed(1)}%',
+                            '${(test.confidenceScore! > 1.0 ? test.confidenceScore! : test.confidenceScore! * 100.0).toStringAsFixed(1)}%',
                             style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textSecondary),
@@ -273,6 +281,29 @@ class _TestTile extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _WideTestsGrid extends ConsumerWidget {
+  const _WideTestsGrid({required this.tests, required this.padding});
+  final List<SpectraTest> tests;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ContentContainer(
+      child: GridView.builder(
+        padding: padding.add(const EdgeInsets.symmetric(vertical: 4)),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: context.isDesktop ? 2 : 1,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 10,
+          childAspectRatio: context.isDesktop ? 3.8 : 5,
+        ),
+        itemCount: tests.length,
+        itemBuilder: (_, i) => _TestTile(test: tests[i]),
       ),
     );
   }

@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spectra_app/core/theme/app_theme.dart';
+import 'package:spectra_app/core/utils/responsive.dart';
 import 'package:spectra_app/features/classify/providers/classify_provider.dart';
 import 'package:spectra_app/features/spectra/providers/spectra_provider.dart';
 import 'package:spectra_app/features/tests/providers/tests_provider.dart';
 import 'package:spectra_app/shared/models/classification.dart';
+import 'package:spectra_app/shared/models/test.dart';
 import 'package:spectra_app/shared/widgets/loading_overlay.dart';
 import 'package:fl_chart/fl_chart.dart';
+
+// Typed aliases to prevent dynamic dispatch breaking AsyncValue.when()
+typedef _TestAsync = AsyncValue<SpectraTest>;
+typedef _SpectraAsync = AsyncValue<Map<String, dynamic>>;
 
 class ClassifyScreen extends ConsumerStatefulWidget {
   const ClassifyScreen({super.key, required this.testId});
@@ -27,6 +33,114 @@ class _ClassifyScreenState extends ConsumerState<ClassifyScreen> {
     });
   }
 
+  Widget _mobileLayout(BuildContext context, ClassifyState classifyState,
+      _SpectraAsync spectraAsync, _TestAsync testAsync) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        testAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (t) => _DrugHeader(drugName: t.drugName),
+        ),
+        const SizedBox(height: 16),
+        if (classifyState.result != null)
+          _ResultCard(result: classifyState.result!),
+        const SizedBox(height: 20),
+        Text('Spectral Profile',
+            style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 10),
+        _buildChart(spectraAsync),
+        const SizedBox(height: 20),
+        if (classifyState.result != null)
+          _TopMatchesSection(testId: widget.testId),
+        const SizedBox(height: 24),
+        if (classifyState.result != null) ..._buildActions(context),
+      ],
+    );
+  }
+
+  Widget _desktopLayout(BuildContext context, ClassifyState classifyState,
+      _SpectraAsync spectraAsync, _TestAsync testAsync) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              testAsync.when(
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+                data: (t) => _DrugHeader(drugName: t.drugName),
+              ),
+              const SizedBox(height: 16),
+              if (classifyState.result != null)
+                _ResultCard(result: classifyState.result!),
+              const SizedBox(height: 20),
+              Text('Spectral Profile',
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 10),
+              _buildChart(spectraAsync),
+            ],
+          ),
+        ),
+        const SizedBox(width: 28),
+        SizedBox(
+          width: 320,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (classifyState.result != null) ...[
+                _TopMatchesSection(testId: widget.testId),
+                const SizedBox(height: 24),
+                ..._buildActions(context),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChart(_SpectraAsync spectraAsync) {
+    return spectraAsync.when(
+      loading: () => const SizedBox(
+          height: 200,
+          child: Center(child: CircularProgressIndicator())),
+      error: (_, __) => const SizedBox(
+          height: 200,
+          child: Center(child: Text('Could not load spectral data'))),
+      data: (data) => _SpectraChart(
+        wavenumbers: List<double>.from(
+          (data['wavenumber_data'] as List)
+              .map((e) => (e as num).toDouble()),
+        ),
+        intensities: List<double>.from(
+          (data['intensity_data'] as List)
+              .map((e) => (e as num).toDouble()),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildActions(BuildContext context) {
+    return [
+      ElevatedButton.icon(
+        onPressed: () => context.go('/reports/${widget.testId}'),
+        icon: const Icon(Icons.picture_as_pdf_outlined),
+        label: const Text('Generate Report'),
+      ),
+      const SizedBox(height: 10),
+      OutlinedButton.icon(
+        onPressed: () => context.go('/tests/${widget.testId}'),
+        icon: const Icon(Icons.arrow_back),
+        label: const Text('Back to Test'),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final classifyState = ref.watch(classifyProvider(widget.testId));
@@ -34,7 +148,7 @@ class _ClassifyScreenState extends ConsumerState<ClassifyScreen> {
     final testAsync = ref.watch(testDetailProvider(widget.testId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: AppColors.navBackground,
         title: const Text('AI Classification'),
@@ -53,73 +167,12 @@ class _ClassifyScreenState extends ConsumerState<ClassifyScreen> {
                       .classify(widget.testId),
                 )
               : SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Drug name from test
-                      testAsync.when(
-                        loading: () => const SizedBox.shrink(),
-                        error: (_, __) => const SizedBox.shrink(),
-                        data: (t) => _DrugHeader(drugName: t.drugName),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Result card
-                      if (classifyState.result != null)
-                        _ResultCard(result: classifyState.result!),
-                      const SizedBox(height: 20),
-
-                      // Spectral chart
-                      Text('Spectral Profile',
-                          style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 10),
-                      spectraAsync.when(
-                        loading: () => const SizedBox(
-                          height: 200,
-                          child: Center(
-                              child: CircularProgressIndicator()),
-                        ),
-                        error: (_, __) => const SizedBox(
-                          height: 200,
-                          child: Center(
-                              child: Text('Could not load spectral data')),
-                        ),
-                        data: (data) => _SpectraChart(
-                          wavenumbers: List<double>.from(
-                            (data['wavenumber_data'] as List)
-                                .map((e) => (e as num).toDouble()),
-                          ),
-                          intensities: List<double>.from(
-                            (data['intensity_data'] as List)
-                                .map((e) => (e as num).toDouble()),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Top matches
-                      if (classifyState.result != null)
-                        _TopMatchesSection(testId: widget.testId),
-
-                      const SizedBox(height: 24),
-                      // Actions
-                      if (classifyState.result != null) ...[
-                        ElevatedButton.icon(
-                          onPressed: () =>
-                              context.go('/reports/${widget.testId}'),
-                          icon: const Icon(Icons.picture_as_pdf_outlined),
-                          label: const Text('Generate Report'),
-                        ),
-                        const SizedBox(height: 10),
-                        OutlinedButton.icon(
-                          onPressed: () =>
-                              context.go('/tests/${widget.testId}'),
-                          icon: const Icon(Icons.arrow_back),
-                          label: const Text('Back to Test'),
-                        ),
-                      ],
-                    ],
+                  child: ContentContainer(
+                    padding: context.pagePadding
+                        .add(const EdgeInsets.symmetric(vertical: 20)),
+                    child: context.isDesktop
+                        ? _desktopLayout(context, classifyState, spectraAsync, testAsync)
+                        : _mobileLayout(context, classifyState, spectraAsync, testAsync),
                   ),
                 ),
     );
@@ -229,31 +282,40 @@ class _ResultCard extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: 14),
           // Confidence bar
-          Row(
-            children: [
-              Text('Confidence',
-                  style: Theme.of(context).textTheme.bodyMedium),
-              const Spacer(),
-              Text(
-                '${(result.confidenceScore * 100).toStringAsFixed(1)}%',
-                style: TextStyle(
-                  color: _color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
+          Builder(builder: (ctx) {
+            final conf = result.confidenceScore;
+            final displayScore = conf > 1.0 ? conf : conf * 100.0;
+            final progressVal = conf > 1.0 ? (conf / 100.0).clamp(0.0, 1.0) : conf.clamp(0.0, 1.0);
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Text('Confidence',
+                        style: Theme.of(ctx).textTheme.bodyMedium),
+                    const Spacer(),
+                    Text(
+                      '${displayScore.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        color: _color,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: result.confidenceScore,
-              backgroundColor: _color.withValues(alpha: 0.15),
-              valueColor: AlwaysStoppedAnimation<Color>(_color),
-              minHeight: 8,
-            ),
-          ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: progressVal,
+                    backgroundColor: _color.withValues(alpha: 0.15),
+                    valueColor: AlwaysStoppedAnimation<Color>(_color),
+                    minHeight: 8,
+                  ),
+                ),
+              ],
+            );
+          }),
           if (result.matchedDrugName != null) ...[
             const SizedBox(height: 12),
             Row(

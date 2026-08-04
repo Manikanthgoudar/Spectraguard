@@ -33,6 +33,17 @@ dependencies:
   path_provider: ^2.1.5
   path: ^1.9.0
 
+  # Preferences & image picker
+  shared_preferences: ^2.3.3
+  image_picker: ^1.1.2
+
+  # Location & maps
+  geolocator: ^13.0.4
+  flutter_map: ^8.3.1
+  latlong2: ^0.10.1
+  url_launcher: ^6.3.1
+  http: ^1.2.2
+
   # UI
   google_fonts: ^6.2.1
   intl: ^0.20.2
