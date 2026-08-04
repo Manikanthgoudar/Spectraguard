@@ -1,6 +1,30 @@
 from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
+from datetime import datetime
 from app.models.user import UserRole
+
+
+class UpdateProfileRequest(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    city: Optional[str] = None
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        return v
+
+
+class ChangeEmailRequest(BaseModel):
+    new_email: EmailStr
+    password: str  # re-verify identity
 
 
 class SignupRequest(BaseModel):
@@ -57,5 +81,8 @@ class UserResponse(BaseModel):
     license_number: Optional[str] = None
     designation: Optional[str] = None
     city: Optional[str] = None
+    is_active: Optional[int] = None
+    created_at: Optional[datetime] = None
+    profile_photo: Optional[str] = None
 
     model_config = {"from_attributes": True}

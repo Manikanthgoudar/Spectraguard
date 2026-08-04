@@ -27,3 +27,4 @@ class User(Base):
     is_active = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.utcnow)
     active_device_id = Column(String(255), nullable=True)  # tracks the currently logged-in device
+    profile_photo = Column(String(500), nullable=True)  # relative path to uploaded profile photo

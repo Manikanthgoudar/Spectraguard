@@ -5,19 +5,23 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.core.logging_config import logger
 # Import models so SQLAlchemy metadata is populated (needed for create_all)
 from app.models import User, ReferenceSpectrum, Test, SpectraData, Report  # noqa: F401
-from app.routers import auth, spectra, classify, tests, reference, reports, admin
+from app.routers import auth, spectra, classify, tests, reference, reports, admin, nearby
+
+# Profile photos directory (created on startup)
+PHOTOS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads", "photos")
 
 
 # ── App Lifespan ────────────────────────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup: create directories. Shutdown: cleanup (if needed)."""
-    for d in [settings.UPLOAD_DIR, settings.REPORTS_DIR, settings.SAMPLE_DATA_DIR]:
+    for d in [settings.UPLOAD_DIR, settings.REPORTS_DIR, settings.SAMPLE_DATA_DIR, PHOTOS_DIR]:
         os.makedirs(d, exist_ok=True)
     logger.info("SpectraGuard API starting up...")
     yield
@@ -39,10 +43,15 @@ app = FastAPI(
 
 
 # ── CORS ────────────────────────────────────────────────────────────────────
+_cors_origins = settings.cors_origins_list
+# Browsers reject allow_credentials=True with a wildcard origin.
+# Use credentials only when explicit origins are listed.
+_allow_credentials = "*" not in _cors_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
+    allow_origins=_cors_origins,
+    allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -70,6 +79,15 @@ app.include_router(tests.router)
 app.include_router(reference.router)
 app.include_router(reports.router)
 app.include_router(admin.router)
+app.include_router(nearby.router)
+
+# ── Static files (profile photos) ───────────────────────────────────────────
+# Must be mounted AFTER routers so /uploads/photos/* is served as static files
+app.mount(
+    "/uploads/photos",
+    StaticFiles(directory=PHOTOS_DIR),
+    name="profile_photos",
+)
 
 
 # ── Health Check ────────────────────────────────────────────────────────────

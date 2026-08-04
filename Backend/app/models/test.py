@@ -17,20 +17,35 @@ class Test(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Drug identification (user-submitted)
     drug_name = Column(String(255), nullable=False)
     batch_number = Column(String(100), nullable=True)
     manufacturer = Column(String(255), nullable=True)
-    expiry_date = Column(String(50), nullable=True)
+    strength = Column(String(100), nullable=True)           # e.g. "500 mg"
+    dosage_form = Column(String(100), nullable=True)        # e.g. "Tablet", "Capsule"
+    manufacturing_date = Column(String(50), nullable=True)  # e.g. "2024-06"
+    expiry_date = Column(String(50), nullable=True)         # e.g. "2026-12"
+
     uploaded_csv_path = Column(String(500), nullable=True)
+
+    # Classification output
     classification_result = Column(
         Enum(ClassificationResult),
         default=ClassificationResult.pending,
         nullable=False,
     )
-    confidence_score = Column(Float, nullable=True)
+    confidence_score = Column(Float, nullable=True)         # 0–100 percentage
+    cosine_similarity = Column(Float, nullable=True)        # raw 0–1 value
+    euclidean_distance = Column(Float, nullable=True)
+    risk_level = Column(String(50), nullable=True)          # "Low", "Medium", "High", "Critical"
     matched_reference_id = Column(
         Integer, ForeignKey("reference_spectra.id"), nullable=True
     )
+    peak_match_count = Column(Integer, nullable=True)
+    peak_difference_summary = Column(Text, nullable=True)
+    ai_explanation = Column(Text, nullable=True)
+
     tested_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

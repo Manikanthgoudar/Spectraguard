@@ -1,11 +1,26 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+import uuid
+import shutil
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
 from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from app.core.dependencies import get_current_user
-from app.schemas.auth import SignupRequest, LoginRequest, TokenResponse, RefreshTokenRequest, UserResponse
+from app.core.logging_config import logger
+from app.schemas.auth import (
+    SignupRequest, LoginRequest, TokenResponse, RefreshTokenRequest,
+    UserResponse, UpdateProfileRequest, ChangePasswordRequest, ChangeEmailRequest,
+)
+
+# Directory where profile photos are stored
+PHOTOS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads", "photos")
+os.makedirs(PHOTOS_DIR, exist_ok=True)
+
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+MAX_PHOTO_SIZE = 5 * 1024 * 1024  # 5 MB
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -41,34 +56,31 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     """Authenticate user and return JWT access + refresh tokens.
     
-    Only one active device is allowed at a time. If the user is already
-    logged in on a different device, this request will be rejected.
-    To log in on a new device, call /auth/logout first on the active device,
-    or use /auth/force-login to override the existing session.
+    Valid credentials always succeed. The active_device_id is updated to the
+    current device, naturally migrating the session if the user switches devices
+    or their stored device_id was lost (e.g. cleared browser storage on web).
+    Use /auth/force-login for the same behavior explicitly.
     """
+    logger.info("Login attempt for email=%s device=%s", payload.email, payload.device_id)
     user = db.query(User).filter(User.email == payload.email, User.is_active == 1).first()
     if not user or not verify_password(payload.password, user.password_hash):
+        logger.warning("Login failed for email=%s — invalid credentials or inactive account", payload.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
 
-    # Enforce single-device session: reject if already logged in on a different device
-    if user.active_device_id and user.active_device_id != payload.device_id:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Already logged in on another device. Please log out first or use /auth/force-login.",
-        )
-
-    # Bind this device to the user's session
+    # Update the active device — valid credentials are sufficient
     user.active_device_id = payload.device_id
     db.commit()
 
     token_data = {"sub": str(user.id), "role": user.role.value, "device_id": payload.device_id}
-    return TokenResponse(
+    tokens = TokenResponse(
         access_token=create_access_token(token_data),
         refresh_token=create_refresh_token(token_data),
     )
+    logger.info("Login successful for user_id=%s email=%s", user.id, user.email)
+    return tokens
 
 
 @router.post("/force-login", response_model=TokenResponse)
@@ -111,6 +123,10 @@ def refresh_token(payload: RefreshTokenRequest):
         )
 
     token_data = {"sub": decoded["sub"], "role": decoded["role"]}
+    # Preserve device_id so the refreshed access token still passes the
+    # device-session check in dependencies.py.
+    if decoded.get("device_id"):
+        token_data["device_id"] = decoded["device_id"]
     return TokenResponse(
         access_token=create_access_token(token_data),
         refresh_token=create_refresh_token(token_data),
@@ -120,4 +136,139 @@ def refresh_token(payload: RefreshTokenRequest):
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     """Return the profile of the currently authenticated user."""
+    logger.info("Profile fetched for user_id=%s email=%s", current_user.id, current_user.email)
+    return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_me(
+    payload: UpdateProfileRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update the currently authenticated user's editable profile fields."""
+    update_data = payload.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+def delete_me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Permanently deactivate (soft-delete) the authenticated user's account."""
+    current_user.is_active = 0
+    current_user.active_device_id = None
+    db.commit()
+
+
+@router.post("/me/change-password", status_code=status.HTTP_200_OK)
+def change_password(
+    payload: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Change the current user's password after verifying the existing one."""
+    if not verify_password(payload.current_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+    current_user.password_hash = hash_password(payload.new_password)
+    db.commit()
+    return {"detail": "Password changed successfully"}
+
+
+@router.post("/me/change-email", response_model=UserResponse)
+def change_email(
+    payload: ChangeEmailRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Change the current user's email address after verifying password."""
+    if not verify_password(payload.password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password is incorrect",
+        )
+    existing = db.query(User).filter(
+        User.email == payload.new_email,
+        User.id != current_user.id,
+    ).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email is already in use by another account",
+        )
+    current_user.email = payload.new_email
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.post("/me/photo", response_model=UserResponse)
+async def upload_profile_photo(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload or replace the user's profile photo (JPEG/PNG/WebP, max 5 MB)."""
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only JPEG, PNG, and WebP images are supported",
+        )
+
+    # Read and validate size
+    contents = await file.read()
+    if len(contents) > MAX_PHOTO_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Profile photo must be smaller than 5 MB",
+        )
+
+    # Remove old photo if present
+    if current_user.profile_photo:
+        old_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            current_user.profile_photo.lstrip("/"),
+        )
+        if os.path.isfile(old_path):
+            os.remove(old_path)
+
+    # Save new photo with a unique filename
+    filename = f"{current_user.id}_{uuid.uuid4().hex}{ext}"
+    save_path = os.path.join(PHOTOS_DIR, filename)
+    with open(save_path, "wb") as f:
+        f.write(contents)
+
+    # Store the URL path relative to server root
+    current_user.profile_photo = f"/uploads/photos/{filename}"
+    db.commit()
+    db.refresh(current_user)
+    logger.info("Profile photo updated for user_id=%s", current_user.id)
+    return current_user
+
+
+@router.delete("/me/photo", response_model=UserResponse)
+def delete_profile_photo(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Remove the user's profile photo."""
+    if current_user.profile_photo:
+        old_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            current_user.profile_photo.lstrip("/"),
+        )
+        if os.path.isfile(old_path):
+            os.remove(old_path)
+        current_user.profile_photo = None
+        db.commit()
+        db.refresh(current_user)
     return current_user

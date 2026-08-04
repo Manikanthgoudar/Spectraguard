@@ -25,6 +25,9 @@ async def upload_spectrum(
     drug_name: str = Form(...),
     batch_number: str = Form(None),
     manufacturer: str = Form(None),
+    strength: str = Form(None),
+    dosage_form: str = Form(None),
+    manufacturing_date: str = Form(None),
     expiry_date: str = Form(None),
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
@@ -61,6 +64,9 @@ async def upload_spectrum(
         drug_name=drug_name,
         batch_number=batch_number,
         manufacturer=manufacturer,
+        strength=strength,
+        dosage_form=dosage_form,
+        manufacturing_date=manufacturing_date,
         expiry_date=expiry_date,
         uploaded_csv_path=file_path,
         classification_result=ClassificationResult.pending,
@@ -107,6 +113,9 @@ def upload_sample_dataset(
     drug_name: str = Form(None),
     batch_number: str = Form(None),
     manufacturer: str = Form(None),
+    strength: str = Form(None),
+    dosage_form: str = Form(None),
+    manufacturing_date: str = Form(None),
     expiry_date: str = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -147,6 +156,9 @@ def upload_sample_dataset(
         drug_name=drug_name,
         batch_number=batch_number,
         manufacturer=manufacturer,
+        strength=strength,
+        dosage_form=dosage_form,
+        manufacturing_date=manufacturing_date,
         expiry_date=expiry_date,
         uploaded_csv_path=file_path,
         classification_result=ClassificationResult.pending,
@@ -179,7 +191,6 @@ def get_spectrum(
     if not test:
         raise HTTPException(status_code=404, detail="Test not found")
 
-    # Non-admin users can only see their own tests
     from app.models.user import UserRole
     if current_user.role != UserRole.admin and test.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Access denied")

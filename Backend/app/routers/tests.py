@@ -28,10 +28,6 @@ def list_tests(
     """List all tests for the current user with optional filters."""
     query = db.query(Test)
 
-    # Non-admin users see only their own tests
-    if current_user.role != UserRole.admin:
-        query = query.filter(Test.user_id == current_user.id)
-
     if drug_name:
         query = query.filter(Test.drug_name.ilike(f"%{drug_name}%"))
     if result:
@@ -65,9 +61,6 @@ def get_test(
     test = db.query(Test).filter(Test.id == test_id).first()
     if not test:
         raise HTTPException(status_code=404, detail="Test not found")
-
-    if current_user.role != UserRole.admin and test.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
 
     return test
 

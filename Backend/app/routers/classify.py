@@ -26,7 +26,7 @@ def run_classification(
     """
     Run AI spectral classification for a test.
     Computes cosine similarity against all reference spectra and returns
-    a classification result + confidence score.
+    a classification result + confidence score + AI explanation.
     """
     test = db.query(Test).filter(Test.id == test_id).first()
     if not test:
@@ -49,16 +49,23 @@ def run_classification(
 
     result = classify_spectrum(wavenumbers, intensities, references)
 
-    # Persist classification result to the test record
+    # Persist all classification fields to the test record
     test.classification_result = result["classification_result"]
     test.confidence_score = result["confidence_score"]
+    test.cosine_similarity = result["cosine_similarity"]
+    test.euclidean_distance = result["euclidean_distance"]
+    test.risk_level = result["risk_level"]
     test.matched_reference_id = result["matched_reference_id"]
+    test.peak_match_count = result["peak_match_count"]
+    test.peak_difference_summary = result["peak_difference_summary"]
+    test.ai_explanation = result["ai_explanation"]
     db.commit()
     db.refresh(test)
 
     logger.info(
         f"Classification | test_id={test_id} | user_id={current_user.id} | "
-        f"result={result['classification_result']} | confidence={result['confidence_score']}"
+        f"result={result['classification_result']} | confidence={result['confidence_score']} | "
+        f"risk={result['risk_level']}"
     )
 
     messages = {

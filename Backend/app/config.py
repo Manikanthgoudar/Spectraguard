@@ -23,8 +23,8 @@ class Settings(BaseSettings):
     REPORTS_DIR: str = "reports"
     SAMPLE_DATA_DIR: str = "sample_data"
 
-    # CORS
-    CORS_ORIGINS: str = '["http://localhost:3000","http://localhost:8080","*"]'
+    # CORS – accepts either "*" (wildcard) or a JSON array of origins
+    CORS_ORIGINS: str = "*"
 
     # App
     APP_ENV: str = "development"
@@ -40,8 +40,15 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> List[str]:
+        val = self.CORS_ORIGINS.strip()
+        if val == "*":
+            return ["*"]
         try:
-            return json.loads(self.CORS_ORIGINS)
+            parsed = json.loads(val)
+            # If the list contains "*", collapse to just ["*"]
+            if "*" in parsed:
+                return ["*"]
+            return parsed
         except Exception:
             return ["*"]
 
