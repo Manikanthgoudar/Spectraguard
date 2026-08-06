@@ -3,10 +3,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config import settings
 
+connect_args = {}
+if "sqlite" in settings.DATABASE_URL:
+    connect_args["check_same_thread"] = False
+
 engine = create_engine(
     settings.DATABASE_URL,
-    pool_pre_ping=True,
-    pool_recycle=3600,
+    pool_pre_ping=True if "mysql" in settings.DATABASE_URL else False,
+    connect_args=connect_args,
     echo=(settings.APP_ENV == "development"),
 )
 

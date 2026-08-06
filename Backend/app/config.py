@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     DB_USER: str = "root"
     DB_PASSWORD: str = "meheer17"
     DB_NAME: str = "spectraguard"
+    DATABASE_URL_OVERRIDE: str = ""
 
     # JWT
     JWT_SECRET_KEY: str = "spectraguard-super-secret-jwt-key"
@@ -36,6 +37,10 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
+        if self.DATABASE_URL_OVERRIDE:
+            return self.DATABASE_URL_OVERRIDE
+        if os.getenv("DATABASE_URL"):
+            return os.getenv("DATABASE_URL")
         return (
             f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
