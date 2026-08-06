@@ -1,3 +1,5 @@
+library;
+
 /// Native (non-web) implementation of PDF download.
 /// Saves to the app's documents directory and returns the local file path.
 import 'package:dio/dio.dart';

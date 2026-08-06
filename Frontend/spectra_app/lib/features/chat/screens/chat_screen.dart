@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spectra_app/core/api/api_client.dart';
 import 'package:spectra_app/core/theme/app_theme.dart';
 import 'package:spectra_app/core/utils/responsive.dart';
 
@@ -15,7 +16,7 @@ class _Message {
   final DateTime time;
 }
 
-// ─── Simple rule-based bot ────────────────────────────────────────────────────
+// ─── Rule-based fallback ──────────────────────────────────────────────────────
 
 String _botReply(String input) {
   final q = input.toLowerCase().trim();
@@ -67,61 +68,6 @@ String _botReply(String input) {
         '4. Prominent peak alignment tables (cm⁻¹ shifts)\n'
         '5. AI diagnostic rationale & regulatory compliance stamps';
   }
-  if (q.contains('reference') || q.contains('database') || q.contains('db')) {
-    return 'The **Reference Database** stores gold-standard spectra for verified pharmaceutical '
-        'compounds (e.g. Paracetamol, Amoxicillin, Ibuprofen, Metformin, Ciprofloxacin). '
-        'Authorized administrators can upload new reference standards to expand the screening library.';
-  }
-  if (q.contains('baseline') || q.contains('preprocess')) {
-    return 'SpectraGuard applies Asymmetric Least Squares (AsLS) baseline subtraction '
-        'and Savitzky-Golay smoothing to eliminate sample fluorescence and background noise '
-        'before matching against the reference database.';
-  }
-  if (q.contains('peak') || q.contains('wavenumber') || q.contains('prominence')) {
-    return 'Peak analysis detects key diagnostic Raman shifts. SpectraGuard locates peaks '
-        'using intensity prominence algorithms and compares their exact positions (within a ±15 cm⁻¹ window) '
-        'against reference standards to flag missing or adulterated functional groups.';
-  }
-  if (q.contains('snr') || q.contains('signal') || q.contains('noise')) {
-    return 'Signal-to-Noise Ratio (SNR) indicates spectral data quality. Low SNR (< 10) '
-        'may occur from low laser power or opaque packaging. Ensure proper focus and repeat '
-        'acquisition if noise obscures diagnostic peaks.';
-  }
-  if (q.contains('risk') || q.contains('rating')) {
-    return 'Risk ratings are calculated based on similarity score and peak divergence:\n'
-        '• **Low (Green)**: Genuine match (Score ≥ 97%)\n'
-        '• **Medium (Yellow)**: Borderline (Score 85–97%)\n'
-        '• **High (Orange)**: Counterfeit suspect (Score 70–85%)\n'
-        '• **Critical (Red)**: Severe mismatch / Unidentified compound (Score < 70%)';
-  }
-  if (q.contains('hplc') || q.contains('lab') || q.contains('confirm') || q.contains('secondary')) {
-    return 'Recommended confirmatory laboratory assays:\n'
-        '1. **HPLC / UHPLC**: Quantifies exact API concentration (% assay)\n'
-        '2. **LC-MS/MS**: Identifies unknown impurities or toxic adulterants\n'
-        '3. **Dissolution Testing**: Confirms drug release rate in simulated gastric fluid';
-  }
-  if (q.contains('quarantine') || q.contains('action') || q.contains('suspect')) {
-    return 'Protocol for suspected counterfeit medicines:\n'
-        '1. Immediately quarantine the affected lot / batch in a secure area\n'
-        '2. Mark batch status in SpectraGuard as "Quarantined"\n'
-        '3. Notify quality assurance (QA) and national regulatory authority (CDSCO / FDA)\n'
-        '4. Retain physical samples and spectral logs for legal investigation';
-  }
-  if (q.contains('authority') || q.contains('cdsco') || q.contains('fda') || q.contains('report fake')) {
-    return 'Counterfeit drugs should be reported to regulatory bodies:\n'
-        '• **CDSCO (India)**: Porting portal / State Licensing Authority\n'
-        '• **US FDA**: MedWatch Safety Information and Reporting Program\n'
-        '• **WHO**: Substandard and Falsified Medical Products Alert Network';
-  }
-  if (q.contains('ingredient') || q.contains('active') || q.contains('drug') || q.contains('support')) {
-    return 'SpectraGuard currently supports spectral identification for major APIs including:\n'
-        '• Paracetamol (Acetaminophen)\n'
-        '• Amoxicillin & Clavulanate\n'
-        '• Ibuprofen & Naproxen\n'
-        '• Metformin Hydrochloride\n'
-        '• Ciprofloxacin & Azithromycin\n'
-        '• Atorvastatin & Omeprazole';
-  }
   if (q.contains('hello') || q.contains('hi') || q.contains('hey')) {
     return 'Hello! I\'m your SpectraGuard AI Assistant. Ask me anything about '
         'pharmaceutical testing, Raman spectroscopy, cosine similarity, or how to handle suspect samples!';
@@ -141,11 +87,11 @@ String _botReply(String input) {
       'Type **help** to see all available topics.';
 }
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
+// ─── Provider (User-Isolated AutoDispose) ────────────────────────────────────
 
 final _chatMessagesProvider =
-    StateNotifierProvider<_ChatNotifier, List<_Message>>(
-  (_) => _ChatNotifier(),
+    StateNotifierProvider.autoDispose<_ChatNotifier, List<_Message>>(
+  (ref) => _ChatNotifier(),
 );
 
 class _ChatNotifier extends StateNotifier<List<_Message>> {
@@ -153,32 +99,75 @@ class _ChatNotifier extends StateNotifier<List<_Message>> {
       : super([
           _Message(
             sender: _Sender.bot,
-            text: 'Hi! I\'m your SpectraGuard assistant. Ask me anything about '
+            text: 'Hi! I\'m your SpectraGuard AI Assistant powered by Gemini. Ask me anything about '
                 'drug authentication, spectral analysis, or how to use the app.',
           ),
-        ]);
-
-  void send(String text) {
-    if (text.trim().isEmpty) return;
-    state = [
-      ...state,
-      _Message(sender: _Sender.user, text: text.trim()),
-    ];
-    // Simulate a short typing delay
-    Future.delayed(const Duration(milliseconds: 600), () {
-      state = [
-        ...state,
-        _Message(sender: _Sender.bot, text: _botReply(text)),
-      ];
-    });
+        ]) {
+    fetchHistory();
   }
 
-  void clear() => state = [
-        _Message(
-          sender: _Sender.bot,
-          text: 'Chat cleared. How can I help you?',
-        ),
+  Future<void> fetchHistory() async {
+    try {
+      final dio = createDio();
+      final response = await dio.get('/chat/messages');
+      final data = response.data as List;
+      if (data.isNotEmpty) {
+        final list = <_Message>[];
+        for (final item in data) {
+          list.add(_Message(
+            sender: item['sender'] == 'user' ? _Sender.user : _Sender.bot,
+            text: item['text'] as String,
+          ));
+        }
+        state = list;
+      }
+    } catch (_) {
+      // Keep initial welcoming message if endpoint is unreachable or history empty
+    }
+  }
+
+  Future<void> send(String text) async {
+    if (text.trim().isEmpty) return;
+    final trimmed = text.trim();
+
+    // Optimistically push user message
+    state = [
+      ...state,
+      _Message(sender: _Sender.user, text: trimmed),
+    ];
+
+    try {
+      final dio = createDio();
+      final response = await dio.post(
+        '/chat/message',
+        data: {'message': trimmed},
+      );
+      final replyText = response.data['text'] as String;
+      state = [
+        ...state,
+        _Message(sender: _Sender.bot, text: replyText),
       ];
+    } catch (_) {
+      // Fallback reply if offline or API error
+      state = [
+        ...state,
+        _Message(sender: _Sender.bot, text: _botReply(trimmed)),
+      ];
+    }
+  }
+
+  Future<void> clear() async {
+    try {
+      final dio = createDio();
+      await dio.delete('/chat/messages');
+    } catch (_) {}
+    state = [
+      _Message(
+        sender: _Sender.bot,
+        text: 'Chat cleared. How can I help you?',
+      ),
+    ];
+  }
 }
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
@@ -195,6 +184,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _scrollCtrl = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    // Ensure history is re-fetched when screen is opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(_chatMessagesProvider.notifier).fetchHistory();
+    });
+  }
+
+  @override
   void dispose() {
     _ctrl.dispose();
     _scrollCtrl.dispose();
@@ -206,7 +204,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (text.isEmpty) return;
     _ctrl.clear();
     ref.read(_chatMessagesProvider.notifier).send(text);
-    Future.delayed(const Duration(milliseconds: 700), _scrollToBottom);
+    Future.delayed(const Duration(milliseconds: 300), _scrollToBottom);
   }
 
   void _scrollToBottom() {
@@ -306,7 +304,7 @@ class _ChatHeader extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'SpectraGuard Helper',
+                      'Powered by Gemini AI',
                       style: TextStyle(
                           fontSize: 12, color: cs.onSurfaceVariant),
                     ),
@@ -564,7 +562,7 @@ class _InputBar extends StatelessWidget {
             Container(
               width: 44,
               height: 44,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.primary,
                 shape: BoxShape.circle,
               ),

@@ -5,7 +5,6 @@ import 'package:spectra_app/core/auth/auth_provider.dart';
 import 'package:spectra_app/core/theme/app_theme.dart';
 import 'package:spectra_app/core/utils/responsive.dart';
 import 'package:spectra_app/shared/models/user.dart';
-import 'package:spectra_app/shared/widgets/profile_avatar.dart';
 
 // ─── Nav item model ───────────────────────────────────────────────────────────
 
@@ -251,111 +250,7 @@ class _WideLayout extends ConsumerWidget {
 // Sidebar profile tile (bottom of sidebar) — shows photo + popup menu
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _SidebarProfileTile extends ConsumerWidget {
-  const _SidebarProfileTile({required this.user});
-  final User? user;
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    return Builder(
-      builder: (ctx) => InkWell(
-        onTap: () => _showProfileMenu(ctx, ref),
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              // Profile avatar — synced via authProvider
-              const ProfileAvatar(size: 34, borderWidth: 1.5),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user?.fullName ?? 'User',
-                      style: TextStyle(
-                        color: cs.onSurface,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    Text(
-                      user?.role.name ?? '',
-                      style: TextStyle(
-                        color: cs.onSurfaceVariant,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.more_vert_rounded,
-                  size: 16, color: cs.onSurfaceVariant),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showProfileMenu(BuildContext context, WidgetRef ref) {
-    final RenderBox box = context.findRenderObject()! as RenderBox;
-    final offset = box.localToGlobal(Offset.zero);
-    final size = box.size;
-    // Capture router before the async gap to avoid BuildContext misuse.
-    final router = GoRouter.of(context);
-
-    showMenu<String>(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        offset.dx,
-        offset.dy - 120,
-        offset.dx + size.width,
-        offset.dy,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      elevation: 4,
-      items: const [
-        PopupMenuItem(
-          value: 'profile',
-          child: Row(children: [
-            Icon(Icons.person_outline_rounded, size: 18),
-            SizedBox(width: 10),
-            Text('My Profile'),
-          ]),
-        ),
-        PopupMenuItem(
-          value: 'settings',
-          child: Row(children: [
-            Icon(Icons.settings_outlined, size: 18),
-            SizedBox(width: 10),
-            Text('Settings'),
-          ]),
-        ),
-        PopupMenuDivider(),
-        PopupMenuItem(
-          value: 'logout',
-          child: Row(children: [
-            Icon(Icons.logout_rounded, size: 18),
-            SizedBox(width: 10),
-            Text('Logout'),
-          ]),
-        ),
-      ],
-    ).then((value) {
-      if (value == 'profile') router.push('/profile');
-      if (value == 'settings') router.push('/settings');
-      if (value == 'logout') {
-        ref.read(authProvider.notifier).logout();
-      }
-    });
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mobile side drawer
@@ -447,57 +342,7 @@ class _SideDrawer extends ConsumerWidget {
 // Drawer profile tile (mobile drawer)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _DrawerProfileTile extends ConsumerWidget {
-  const _DrawerProfileTile({required this.user});
-  final User? user;
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: [
-          ProfileAvatar(size: 38, borderWidth: 1.5),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user?.fullName ?? 'User',
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  user?.email ?? '',
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          // Logout button
-          IconButton(
-            icon: const Icon(Icons.logout_rounded,
-                size: 20, color: AppColors.textSecondary),
-            tooltip: 'Logout',
-            onPressed: () {
-              Navigator.of(context).pop();
-              ref.read(authProvider.notifier).logout();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sidebar nav item

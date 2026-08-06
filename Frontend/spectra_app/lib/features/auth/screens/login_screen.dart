@@ -44,7 +44,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(authProvider).isLoading;
     final isWide = context.isWide;
 
     return Scaffold(

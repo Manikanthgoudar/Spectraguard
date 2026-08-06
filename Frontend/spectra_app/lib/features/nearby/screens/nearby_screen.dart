@@ -52,7 +52,6 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
 
   RouteResult? _activeRoute;
   bool _isRouting = false;
-  bool _showSidePanel = false;
 
   @override
   void initState() {
@@ -395,7 +394,7 @@ class _FilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final types = FacilityType.values;
+    const types = FacilityType.values;
 
     return Container(
       height: 52,
@@ -459,44 +458,6 @@ class _FilterBar extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ViewModeBtn extends StatelessWidget {
-  const _ViewModeBtn({
-    required this.icon,
-    required this.tooltip,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(6),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Icon(
-            icon,
-            size: 18,
-            color: isSelected ? Colors.white : cs.onSurfaceVariant,
-          ),
-        ),
       ),
     );
   }
@@ -862,7 +823,7 @@ class _NearbyMapView extends StatelessWidget {
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.spectraguard.app',
+              userAgentPackageName: 'com.spectra.spectra_app',
             ),
             if (activeRoute != null && activeRoute!.points.isNotEmpty)
               PolylineLayer(

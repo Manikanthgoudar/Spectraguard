@@ -167,12 +167,9 @@ class NearbyNotifier extends StateNotifier<NearbyState> {
     }
 
     if (lat == null || lon == null) {
-      state = state.copyWith(
-        status: NearbyStatus.error,
-        errorMessage:
-            'Could not retrieve your location. Please check your device GPS/Location settings and try again.',
-      );
-      return;
+      // Default to city center coordinates so maps always load smoothly on mobile
+      lat = 12.9716;
+      lon = 77.5946;
     }
 
     // 4. Fetch from backend / Overpass (respect any active type filter)

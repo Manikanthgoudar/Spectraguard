@@ -39,21 +39,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final AuthService _service;
 
   Future<void> _init() async {
-    state = state.copyWith(isLoading: true);
     try {
       final loggedIn = await _service.isLoggedIn();
       if (loggedIn) {
         final user = await _service.getMe();
-        state = state.copyWith(user: user, isLoading: false);
-      } else {
-        state = state.copyWith(isLoading: false);
+        state = state.copyWith(user: user);
       }
     } catch (_) {
-      // Token was considered valid but the server rejected it (e.g. DB reset,
-      // secret key change). Clear local storage without waiting on the server
-      // (the server call in logout() could itself hang and keep isLoading true).
       _service.logout().ignore();
-      state = const AuthState(); // isLoading defaults to false
+      state = const AuthState();
     }
   }
 

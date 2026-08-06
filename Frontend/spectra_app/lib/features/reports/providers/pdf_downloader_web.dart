@@ -1,6 +1,9 @@
+// ignore_for_file: avoid_web_libraries_in_flutter
+
+library;
+
 /// Web implementation of PDF download.
 /// Fetches the PDF bytes and triggers a browser "Save As" dialog.
-// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'package:dio/dio.dart';
 
@@ -19,7 +22,6 @@ Future<String> downloadPdf({
     throw Exception('Received empty PDF from server');
   }
 
-  // Create a blob URL and click a hidden anchor to trigger download
   final blob = html.Blob([bytes], 'application/pdf');
   final url = html.Url.createObjectUrlFromBlob(blob);
   html.AnchorElement(href: url)
@@ -27,6 +29,5 @@ Future<String> downloadPdf({
     ..click();
   html.Url.revokeObjectUrl(url);
 
-  // Return a sentinel so the UI can show a success message
-  return 'downloaded';
+  return 'Downloaded to downloads folder';
 }
