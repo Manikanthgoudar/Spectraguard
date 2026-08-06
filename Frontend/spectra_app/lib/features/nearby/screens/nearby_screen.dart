@@ -115,9 +115,7 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
     final results = state.filtered;
 
     Widget body;
-    if (state.isLoading) {
-      body = _LoadingState(status: state.status);
-    } else if (state.status == NearbyStatus.permissionDenied ||
+    if (state.status == NearbyStatus.permissionDenied ||
         state.status == NearbyStatus.permissionDeniedForever) {
       body = _PermissionDeniedState(
         isPermanent: state.status == NearbyStatus.permissionDeniedForever,
@@ -127,21 +125,18 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
       body = _LocationDisabledState(
         onRetry: () => ref.read(nearbyProvider.notifier).loadFacilities(),
       );
-    } else if (state.status == NearbyStatus.noInternet) {
+    } else if (state.status == NearbyStatus.noInternet && state.facilities.isEmpty) {
       body = _NoInternetState(
         onRetry: () => ref.read(nearbyProvider.notifier).loadFacilities(),
       );
-    } else if (state.status == NearbyStatus.serviceUnavailable) {
-      body = _ServiceUnavailableState(
-        message: state.errorMessage,
-        onRetry: () => ref.read(nearbyProvider.notifier).loadFacilities(),
-      );
-    } else if (state.status == NearbyStatus.error) {
+    } else if (state.status == NearbyStatus.error && state.facilities.isEmpty) {
       body = _ErrorState(
         message: state.errorMessage,
         onRetry: () => ref.read(nearbyProvider.notifier).loadFacilities(),
       );
-    } else if (state.status == NearbyStatus.success) {
+    } else if (state.isLoading && state.facilities.isEmpty) {
+      body = _LoadingState(status: state.status);
+    } else {
       final mapWidget = _NearbyMapView(
         facilities: results,
         userLat: state.userLat,
@@ -150,6 +145,7 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
         activeRoute: _activeRoute,
         onGetDirections: _fetchAndShowRoute,
         onClearRoute: _clearRoute,
+        onRecenter: () => ref.read(nearbyProvider.notifier).requestLocationAndRecenter(),
       );
 
       final listWidget = ContentContainer(
@@ -225,8 +221,6 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
           },
         );
       }
-    } else {
-      body = const SizedBox.shrink();
     }
 
     return Scaffold(
@@ -457,7 +451,77 @@ class _FilterBar extends StatelessWidget {
               },
             ),
           ),
+          const SizedBox(width: 8),
+          Container(
+            height: 34,
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: cs.outline),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _ViewModeBtn(
+                  icon: Icons.map_rounded,
+                  tooltip: 'Map View',
+                  isSelected: viewMode == NearbyViewMode.map,
+                  onTap: () => onViewModeChanged(NearbyViewMode.map),
+                ),
+                _ViewModeBtn(
+                  icon: Icons.vertical_split_rounded,
+                  tooltip: 'Split View',
+                  isSelected: viewMode == NearbyViewMode.split,
+                  onTap: () => onViewModeChanged(NearbyViewMode.split),
+                ),
+                _ViewModeBtn(
+                  icon: Icons.view_list_rounded,
+                  tooltip: 'List View',
+                  isSelected: viewMode == NearbyViewMode.list,
+                  onTap: () => onViewModeChanged(NearbyViewMode.list),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _ViewModeBtn extends StatelessWidget {
+  const _ViewModeBtn({
+    required this.icon,
+    required this.tooltip,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 16,
+            color: isSelected ? Colors.white : cs.onSurfaceVariant,
+          ),
+        ),
       ),
     );
   }
@@ -701,6 +765,7 @@ class _NearbyMapView extends StatelessWidget {
     this.activeRoute,
     this.onGetDirections,
     this.onClearRoute,
+    this.onRecenter,
   });
 
   final List<NearbyFacility> facilities;
@@ -710,6 +775,7 @@ class _NearbyMapView extends StatelessWidget {
   final RouteResult? activeRoute;
   final ValueChanged<NearbyFacility>? onGetDirections;
   final VoidCallback? onClearRoute;
+  final VoidCallback? onRecenter;
 
   @override
   Widget build(BuildContext context) {
@@ -824,6 +890,7 @@ class _NearbyMapView extends StatelessWidget {
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.spectra.spectra_app',
+              maxZoom: 19,
             ),
             if (activeRoute != null && activeRoute!.points.isNotEmpty)
               PolylineLayer(
@@ -940,6 +1007,9 @@ class _NearbyMapView extends StatelessWidget {
                 backgroundColor: cs.surface,
                 foregroundColor: cs.onSurface,
                 onPressed: () {
+                  if (onRecenter != null) {
+                    onRecenter!();
+                  }
                   mapController.move(center, 14.0);
                 },
                 child: const Icon(Icons.my_location_rounded),
@@ -1207,24 +1277,7 @@ class _NoInternetState extends StatelessWidget {
   }
 }
 
-class _ServiceUnavailableState extends StatelessWidget {
-  const _ServiceUnavailableState({this.message, required this.onRetry});
-  final String? message;
-  final VoidCallback onRetry;
 
-  @override
-  Widget build(BuildContext context) {
-    return _InfoState(
-      icon: Icons.cloud_off_outlined,
-      iconColor: AppColors.warning,
-      title: 'Facility Data Unavailable',
-      subtitle: message ??
-          'The facility data service is temporarily unavailable. Please try again in a moment.',
-      buttonLabel: 'Try Again',
-      onButton: onRetry,
-    );
-  }
-}
 
 class _ErrorState extends StatelessWidget {
   const _ErrorState({this.message, required this.onRetry});

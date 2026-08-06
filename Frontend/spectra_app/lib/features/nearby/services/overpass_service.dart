@@ -80,12 +80,13 @@ class OverpassService {
     final mirrors = [
       'https://overpass-api.de/api/interpreter?data=$encodedQuery',
       'https://overpass.kumi.systems/api/interpreter?data=$encodedQuery',
+      'https://overpass.openstreetmap.fr/api/interpreter?data=$encodedQuery',
     ];
 
     Object? lastError;
     final directDio = Dio(BaseOptions(
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 25),
+      connectTimeout: const Duration(seconds: 8),
+      receiveTimeout: const Duration(seconds: 12),
     ));
 
     for (final mirror in mirrors) {
