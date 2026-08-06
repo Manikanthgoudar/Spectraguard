@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from app.database import SessionLocal, engine
-from app.models import User, ReferenceSpectrum, Test, SpectraData, Report
+from app.models import User, ReferenceSpectrum, Test, SpectraData, Report, ChatMessage
 from app.models.user import UserRole
 from app.models.test import ClassificationResult
 from app.core.security import hash_password
@@ -84,6 +84,7 @@ def main():
     db.query(SpectraData).delete()
     db.query(Test).delete()
     db.query(ReferenceSpectrum).delete()
+    db.query(ChatMessage).delete()
     db.query(User).delete()
     db.commit()
 

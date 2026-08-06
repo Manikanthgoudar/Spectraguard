@@ -10,8 +10,8 @@ from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.core.logging_config import logger
 # Import models so SQLAlchemy metadata is populated (needed for create_all)
-from app.models import User, ReferenceSpectrum, Test, SpectraData, Report  # noqa: F401
-from app.routers import auth, spectra, classify, tests, reference, reports, admin, nearby
+from app.models import User, ReferenceSpectrum, Test, SpectraData, Report, ChatMessage  # noqa: F401
+from app.routers import auth, spectra, classify, tests, reference, reports, admin, nearby, chat
 
 # Profile photos directory (created on startup)
 PHOTOS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads", "photos")
@@ -87,6 +87,7 @@ app.include_router(reference.router)
 app.include_router(reports.router)
 app.include_router(admin.router)
 app.include_router(nearby.router)
+app.include_router(chat.router)
 
 # ── Static files (profile photos) ───────────────────────────────────────────
 # Must be mounted AFTER routers so /uploads/photos/* is served as static files

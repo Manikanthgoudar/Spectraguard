@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DB_HOST: str = "localhost"
     DB_PORT: int = 3306
     DB_USER: str = "root"
-    DB_PASSWORD: str = "Manikanth123#"
+    DB_PASSWORD: str = "meheer17"
     DB_NAME: str = "spectraguard"
 
     # JWT
@@ -25,6 +25,9 @@ class Settings(BaseSettings):
 
     # CORS – accepts either "*" (wildcard) or a JSON array of origins
     CORS_ORIGINS: str = "*"
+
+    # AI / Gemini
+    GEMINI_API_KEY: str = ""
 
     # App
     APP_ENV: str = "development"
