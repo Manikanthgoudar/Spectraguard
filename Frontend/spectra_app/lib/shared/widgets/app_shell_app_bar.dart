@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:spectra_app/core/theme/app_theme.dart';
 import 'package:spectra_app/core/utils/responsive.dart';
 
 /// A standard AppBar that automatically adds a hamburger menu icon on mobile

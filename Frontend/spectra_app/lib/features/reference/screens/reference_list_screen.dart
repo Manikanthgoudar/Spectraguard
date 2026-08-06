@@ -218,7 +218,7 @@ class _RefTile extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.secondary.withValues(alpha: 0.1),
+              color: AppColors.secondary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.science_outlined,

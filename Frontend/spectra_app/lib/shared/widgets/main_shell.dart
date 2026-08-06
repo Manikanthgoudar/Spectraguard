@@ -531,12 +531,12 @@ class _SidebarNavItem extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
             decoration: BoxDecoration(
               color: selected
-                  ? AppColors.primary.withValues(alpha: 0.10)
+                  ? AppColors.primary.withOpacity(0.10)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
               border: selected
                   ? Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.25))
+                      color: AppColors.primary.withOpacity(0.25))
                   : null,
             ),
             child: Row(
@@ -608,7 +608,7 @@ class _BottomNav extends StatelessWidget {
                             horizontal: 12, vertical: 5),
                         decoration: BoxDecoration(
                           color: selected
-                              ? AppColors.primary.withValues(alpha: 0.12)
+                              ? AppColors.primary.withOpacity(0.12)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                         ),

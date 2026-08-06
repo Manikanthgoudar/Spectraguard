@@ -350,7 +350,7 @@ class _MobileHeader extends StatelessWidget {
           Text(
             'Join SpectraGuard today',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
+              color: Colors.white.withOpacity(0.8),
               fontSize: 14,
             ),
           ),
@@ -445,8 +445,8 @@ class _GradientButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: onPressed == null
               ? LinearGradient(colors: [
-                  AppColors.primary.withValues(alpha: 0.5),
-                  AppColors.primaryDark.withValues(alpha: 0.5),
+                  AppColors.primary.withOpacity(0.5),
+                  AppColors.primaryDark.withOpacity(0.5),
                 ])
               : const LinearGradient(
                   colors: [AppColors.gradientStart, AppColors.gradientEnd]),

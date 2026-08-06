@@ -16,7 +16,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// You never need to edit this file again — just change the flag.
 const String _devMachineIp = String.fromEnvironment(
   'DEV_MACHINE_IP',
-  defaultValue: '10.0.2.2',
+  defaultValue: '192.168.31.202',
 );
 
 String get _baseUrl {

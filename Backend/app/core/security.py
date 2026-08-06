@@ -1,38 +1,32 @@
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.config import settings
 from app.core.logging_config import logger
 
-# ── bcrypt / passlib compatibility fix ────────────────────────────────────
-# passlib 1.7.4 tries to read bcrypt.__about__.__version__ but bcrypt >= 4.x
-# removed the __about__ module.  The error is caught internally by passlib
-# ("(trapped) error reading bcrypt version") so hashing still works, but it
-# spams the logs.  Inject a shim so passlib finds the version it expects.
-import bcrypt as _bcrypt_module  # noqa: E402
-
-if not hasattr(_bcrypt_module, "__about__"):
-    class _BcryptAbout:
-        __version__ = _bcrypt_module.__version__
-
-    _bcrypt_module.__about__ = _BcryptAbout()
-# ──────────────────────────────────────────────────────────────────────────
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    """Hashes a plain text password using bcrypt."""
+    pwd_bytes = password.encode("utf-8")[:72]
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    result = pwd_context.verify(plain_password, hashed_password)
-    if not result:
-        logger.warning("Password verification failed")
-    return result
+    """Verifies a plain text password against a bcrypt hash."""
+    try:
+        pwd_bytes = plain_password.encode("utf-8")[:72]
+        hash_bytes = hashed_password.encode("utf-8")
+        result = bcrypt.checkpw(pwd_bytes, hash_bytes)
+        if not result:
+            logger.warning("Password verification failed")
+        return result
+    except Exception as e:
+        logger.warning(f"Password verification error: {e}")
+        return False
 
 
 def create_access_token(data: Dict[str, Any]) -> str:

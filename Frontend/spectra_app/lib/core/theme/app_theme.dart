@@ -117,7 +117,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: AppColors.surface,
         elevation: 0,
         shadowColor: AppColors.cardShadow,
@@ -229,7 +229,7 @@ class AppTheme {
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         behavior: SnackBarBehavior.floating,
       ),
-      dialogTheme: DialogThemeData(
+      dialogTheme: DialogTheme(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
@@ -247,7 +247,7 @@ class AppTheme {
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (s) => s.contains(WidgetState.selected)
-              ? AppColors.primary.withValues(alpha: 0.5)
+              ? AppColors.primary.withOpacity(0.5)
               : AppColors.border,
         ),
       ),
@@ -305,7 +305,7 @@ class AppTheme {
             fontSize: 20, fontWeight: FontWeight.w600, color: darkTextPrimary),
         iconTheme: const IconThemeData(color: darkTextPrimary),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: darkSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -379,7 +379,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         behavior: SnackBarBehavior.floating,
       ),
-      dialogTheme: DialogThemeData(
+      dialogTheme: DialogTheme(
         backgroundColor: darkSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         titleTextStyle: GoogleFonts.inter(
@@ -391,7 +391,7 @@ class AppTheme {
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (s) => s.contains(WidgetState.selected)
-              ? primary.withValues(alpha: 0.5)
+              ? primary.withOpacity(0.5)
               : darkBorder,
         ),
       ),

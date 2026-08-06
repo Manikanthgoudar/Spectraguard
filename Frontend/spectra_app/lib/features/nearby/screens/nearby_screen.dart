@@ -304,7 +304,7 @@ class _NearbyHeader extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: AppColors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
@@ -424,12 +424,12 @@ class _FilterBar extends StatelessWidget {
                           const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? t.color.withValues(alpha: 0.12)
+                            ? t.color.withOpacity(0.12)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected
-                              ? t.color.withValues(alpha: 0.4)
+                              ? t.color.withOpacity(0.4)
                               : cs.outline,
                           width: isSelected ? 1.5 : 1,
                         ),
@@ -530,7 +530,7 @@ class _FacilityCard extends StatelessWidget {
         border: Border.all(color: cs.outline),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.04),
+            color: cs.shadow.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -551,7 +551,7 @@ class _FacilityCard extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: f.type.color.withValues(alpha: 0.12),
+                      color: f.type.color.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(f.type.icon, color: f.type.color, size: 22),
@@ -681,7 +681,7 @@ class _TypeBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: type.color.withValues(alpha: 0.12),
+        color: type.color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -706,7 +706,7 @@ class _OpenBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -782,7 +782,7 @@ class _NearbyMapView extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.3),
+                    color: AppColors.primary.withOpacity(0.3),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -901,7 +901,7 @@ class _NearbyMapView extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.12),
+                            color: AppColors.primary.withOpacity(0.12),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.navigation, color: AppColors.primary, size: 20),
@@ -1031,7 +1031,7 @@ class _NearbyMapView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: f.type.color.withValues(alpha: 0.15),
+                    color: f.type.color.withOpacity(0.15),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(f.type.icon, color: f.type.color, size: 24),
@@ -1313,7 +1313,7 @@ class _InfoState extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
+                color: iconColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 36, color: iconColor),

@@ -180,7 +180,7 @@ class _TestTile extends ConsumerWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         decoration: BoxDecoration(
-          color: AppColors.error.withValues(alpha: 0.1),
+          color: AppColors.error.withOpacity(0.1),
           borderRadius: BorderRadius.circular(14),
         ),
         child: const Icon(Icons.delete_outline, color: AppColors.error),
@@ -225,7 +225,7 @@ class _TestTile extends ConsumerWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.09),
+                  color: AppColors.primary.withOpacity(0.09),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.science_outlined,

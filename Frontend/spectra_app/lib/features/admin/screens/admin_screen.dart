@@ -212,7 +212,7 @@ class _RoleBreakdown extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: pct,
-                    backgroundColor: color.withValues(alpha: 0.1),
+                    backgroundColor: color.withOpacity(0.1),
                     valueColor: AlwaysStoppedAnimation<Color>(color),
                     minHeight: 5,
                   ),
@@ -250,7 +250,7 @@ class _DrugRanking extends StatelessWidget {
           final count = d['count'] as int;
           return ListTile(
             leading: CircleAvatar(
-              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+              backgroundColor: AppColors.primary.withOpacity(0.1),
               radius: 18,
               child: Text(
                 '${i + 1}',
@@ -266,7 +266,7 @@ class _DrugRanking extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(

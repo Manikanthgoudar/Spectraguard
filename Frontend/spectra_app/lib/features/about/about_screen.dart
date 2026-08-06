@@ -74,7 +74,7 @@ class _HeaderCard extends StatelessWidget {
         border: Border.all(color: cs.outline),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.04),
+            color: cs.shadow.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -128,7 +128,7 @@ class _SectionCard extends StatelessWidget {
         border: Border.all(color: cs.outline),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.04),
+            color: cs.shadow.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -171,7 +171,7 @@ class _FeatureTile extends StatelessWidget {
         border: Border.all(color: cs.outline),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.04),
+            color: cs.shadow.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -183,7 +183,7 @@ class _FeatureTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
+              color: color.withOpacity(0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -326,7 +326,7 @@ class _HowItWorksList extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: step.$3.withValues(alpha: 0.12),
+                    color: step.$3.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(

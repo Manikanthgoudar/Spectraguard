@@ -223,7 +223,7 @@ class _ProfileAvatarEditorState extends ConsumerState<_ProfileAvatarEditor> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: const Icon(Icons.photo_library_outlined,
@@ -245,7 +245,7 @@ class _ProfileAvatarEditorState extends ConsumerState<_ProfileAvatarEditor> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.1),
+                    color: AppColors.error.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(9),
                   ),
                   child: const Icon(Icons.delete_outline_rounded,
@@ -332,10 +332,10 @@ class _ProfileAvatarEditorState extends ConsumerState<_ProfileAvatarEditor> {
             width: 84,
             height: 84,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
+              color: AppColors.primary.withOpacity(0.12),
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.25),
+                color: AppColors.primary.withOpacity(0.25),
                 width: 2,
               ),
             ),
@@ -589,7 +589,7 @@ class _InfoCard extends StatelessWidget {
         border: Border.all(color: cs.outline),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.04),
+            color: cs.shadow.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -627,7 +627,7 @@ class _InfoTile extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.10),
+                  color: AppColors.primary.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: AppColors.primary, size: 18),
@@ -679,9 +679,9 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1007,7 +1007,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+        color: cs.surfaceContainerHighest.withOpacity(0.4),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: cs.outline),
       ),
@@ -1033,7 +1033,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: cs.outline.withValues(alpha: 0.4),
+                color: cs.outline.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -1067,7 +1067,7 @@ class _ActionCard extends ConsumerWidget {
         border: Border.all(color: cs.outline),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.04),
+            color: cs.shadow.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1215,7 +1215,7 @@ class _ActionTile extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.10),
+                color: color.withOpacity(0.10),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 18),
@@ -1233,7 +1233,7 @@ class _ActionTile extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: color.withValues(alpha: 0.5),
+              color: color.withOpacity(0.5),
               size: 20,
             ),
           ],

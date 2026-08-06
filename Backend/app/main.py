@@ -17,12 +17,19 @@ from app.routers import auth, spectra, classify, tests, reference, reports, admi
 PHOTOS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads", "photos")
 
 
+from app.database import engine, Base
+
 # ── App Lifespan ────────────────────────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: create directories. Shutdown: cleanup (if needed)."""
+    """Startup: create directories and tables. Shutdown: cleanup (if needed)."""
     for d in [settings.UPLOAD_DIR, settings.REPORTS_DIR, settings.SAMPLE_DATA_DIR, PHOTOS_DIR]:
         os.makedirs(d, exist_ok=True)
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables created/verified successfully.")
+    except Exception as e:
+        logger.error(f"Failed to create database tables on startup: {e}")
     logger.info("SpectraGuard API starting up...")
     yield
     logger.info("SpectraGuard API shutting down.")

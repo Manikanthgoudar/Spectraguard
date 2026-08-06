@@ -190,7 +190,7 @@ class _DrugHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Icons.medication_outlined,
@@ -251,9 +251,9 @@ class _ResultCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.08),
+        color: _color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _color.withValues(alpha: 0.3)),
+        border: Border.all(color: _color.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,7 +308,7 @@ class _ResultCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                   child: LinearProgressIndicator(
                     value: progressVal,
-                    backgroundColor: _color.withValues(alpha: 0.15),
+                    backgroundColor: _color.withOpacity(0.15),
                     valueColor: AlwaysStoppedAnimation<Color>(_color),
                     minHeight: 8,
                   ),
@@ -439,7 +439,7 @@ class _SpectraChart extends StatelessWidget {
               dotData: const FlDotData(show: false),
               belowBarData: BarAreaData(
                 show: true,
-                color: AppColors.primary.withValues(alpha: 0.08),
+                color: AppColors.primary.withOpacity(0.08),
               ),
             ),
           ],
@@ -510,7 +510,7 @@ class _MatchTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: rank == 1
                   ? AppColors.primary
-                  : AppColors.primary.withValues(alpha: 0.1),
+                  : AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Center(

@@ -170,7 +170,7 @@ class _UploadSpectraScreenState extends ConsumerState<UploadSpectraScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 32),
         decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.05),
+          color: AppColors.primary.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _pickedFile != null ? AppColors.primary : AppColors.border,

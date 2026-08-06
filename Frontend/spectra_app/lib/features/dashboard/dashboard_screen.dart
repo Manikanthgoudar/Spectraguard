@@ -204,7 +204,7 @@ class _MobileHeader extends ConsumerWidget {
         color: AppColors.surface,
         boxShadow: [
           BoxShadow(
-            color: AppColors.cardShadow.withValues(alpha: 0.6),
+            color: AppColors.cardShadow.withOpacity(0.6),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
@@ -357,7 +357,7 @@ class _WideHeader extends ConsumerWidget {
         color: AppColors.surface,
         boxShadow: [
           BoxShadow(
-            color: AppColors.cardShadow.withValues(alpha: 0.6),
+            color: AppColors.cardShadow.withOpacity(0.6),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
@@ -510,21 +510,21 @@ class _StatsSection extends StatelessWidget {
         value: genuine.toString(),
         icon: Icons.verified_rounded,
         color: AppColors.genuine,
-        bgColor: AppColors.genuine.withValues(alpha: 0.12),
+        bgColor: AppColors.genuine.withOpacity(0.12),
       ),
       _StatData(
         label: 'Counterfeit',
         value: counterfeit.toString(),
         icon: Icons.gpp_bad_rounded,
         color: AppColors.counterfeit,
-        bgColor: AppColors.counterfeit.withValues(alpha: 0.10),
+        bgColor: AppColors.counterfeit.withOpacity(0.10),
       ),
       _StatData(
         label: 'Unknown',
         value: unknown.toString(),
         icon: Icons.help_outline_rounded,
         color: AppColors.requiresVerification,
-        bgColor: AppColors.requiresVerification.withValues(alpha: 0.12),
+        bgColor: AppColors.requiresVerification.withOpacity(0.12),
       ),
     ];
 
@@ -578,7 +578,7 @@ class _PremiumStatCard extends StatelessWidget {
         border: Border.all(color: cs.outline),
         boxShadow: [
           BoxShadow(
-            color: stat.color.withValues(alpha: 0.07),
+            color: stat.color.withOpacity(0.07),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -674,7 +674,7 @@ class _QuickSummaryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.30),
+              color: AppColors.primary.withOpacity(0.30),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -688,7 +688,7 @@ class _QuickSummaryCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.20),
+                    color: Colors.white.withOpacity(0.20),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.insights_rounded,
@@ -718,18 +718,18 @@ class _QuickSummaryCard extends StatelessWidget {
                 Container(
                     width: 1,
                     height: 40,
-                    color: Colors.white.withValues(alpha: 0.25)),
+                    color: Colors.white.withOpacity(0.25)),
                 Expanded(
                   child: _SummaryMetric(
                     label: 'Genuine Rate',
-                    value: '90%',
+                    value: '$genuineRate%',
                     icon: Icons.verified_rounded,
                   ),
                 ),
                 Container(
                     width: 1,
                     height: 40,
-                    color: Colors.white.withValues(alpha: 0.25)),
+                    color: Colors.white.withOpacity(0.25)),
                 Expanded(
                   child: _SummaryMetric(
                     label: 'Total Tests',
@@ -743,7 +743,7 @@ class _QuickSummaryCard extends StatelessWidget {
               const SizedBox(height: 14),
               Container(
                 height: 1,
-                color: Colors.white.withValues(alpha: 0.20),
+                color: Colors.white.withOpacity(0.20),
               ),
               const SizedBox(height: 12),
               Row(
@@ -772,7 +772,7 @@ class _QuickSummaryCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.20),
+                        color: Colors.white.withOpacity(0.20),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -948,7 +948,6 @@ class _ActionTileState extends State<_ActionTile>
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final a = widget.action;
     return GestureDetector(
       onTapDown: (_) => _ctrl.forward(),
@@ -967,7 +966,7 @@ class _ActionTileState extends State<_ActionTile>
             border: Border.all(color: AppColors.border),
             boxShadow: [
               BoxShadow(
-                color: a.color.withValues(alpha: 0.08),
+                color: a.color.withOpacity(0.08),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -1039,12 +1038,12 @@ class _RecentTestCard extends StatelessWidget {
           border: Border.all(color: cs.outline),
           boxShadow: [
             BoxShadow(
-              color: accent.withValues(alpha: 0.06),
+              color: accent.withOpacity(0.06),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
             BoxShadow(
-              color: cs.shadow.withValues(alpha: 0.04),
+              color: cs.shadow.withOpacity(0.04),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),
@@ -1070,7 +1069,7 @@ class _RecentTestCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.10),
+                color: accent.withOpacity(0.10),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(Icons.medication_rounded, color: accent, size: 20),
@@ -1166,8 +1165,8 @@ class _EmptyState extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primary.withValues(alpha: 0.15),
-                    AppColors.primary.withValues(alpha: 0.05),
+                    AppColors.primary.withOpacity(0.15),
+                    AppColors.primary.withOpacity(0.05),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

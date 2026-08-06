@@ -296,10 +296,10 @@ class _HeroContent extends StatelessWidget {
           width: large ? 96 : 72,
           height: large ? 96 : 72,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
+            color: Colors.white.withOpacity(0.15),
             shape: BoxShape.circle,
             border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
+                color: Colors.white.withOpacity(0.3),
                 width: 2),
           ),
           child: Icon(Icons.biotech,
@@ -319,7 +319,7 @@ class _HeroContent extends StatelessWidget {
         Text(
           'Drug Authentication System',
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.8),
+            color: Colors.white.withOpacity(0.8),
             fontSize: large ? 16 : 13,
             fontWeight: FontWeight.w400,
           ),
@@ -352,7 +352,7 @@ class _FeatureItem extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
+            color: Colors.white.withOpacity(0.15),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: Colors.white, size: 18),
@@ -362,7 +362,7 @@ class _FeatureItem extends StatelessWidget {
           child: Text(
             text,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: Colors.white.withOpacity(0.9),
               fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
@@ -425,8 +425,8 @@ class _GradientButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: onPressed == null
               ? LinearGradient(colors: [
-                  AppColors.primary.withValues(alpha: 0.5),
-                  AppColors.primaryDark.withValues(alpha: 0.5),
+                  AppColors.primary.withOpacity(0.5),
+                  AppColors.primaryDark.withOpacity(0.5),
                 ])
               : const LinearGradient(
                   colors: [AppColors.gradientStart, AppColors.gradientEnd]),

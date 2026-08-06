@@ -286,7 +286,7 @@ class _ChatHeader extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
+                  color: AppColors.primary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.smart_toy_outlined,
@@ -350,7 +350,7 @@ class _MessageBubble extends StatelessWidget {
               width: 30,
               height: 30,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.12),
+                color: AppColors.primary.withOpacity(0.12),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.smart_toy_outlined,
@@ -376,7 +376,7 @@ class _MessageBubble extends StatelessWidget {
                     : Border.all(color: cs.outline),
                 boxShadow: [
                   BoxShadow(
-                    color: cs.shadow.withValues(alpha: 0.04),
+                    color: cs.shadow.withOpacity(0.04),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -467,7 +467,7 @@ class _SuggestedChips extends StatelessWidget {
     return Container(
       height: 44,
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: cs.outline.withValues(alpha: 0.5))),
+        border: Border(top: BorderSide(color: cs.outline.withOpacity(0.5))),
       ),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -481,10 +481,10 @@ class _SuggestedChips extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.08),
+                  color: AppColors.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.25)),
+                      color: AppColors.primary.withOpacity(0.25)),
                 ),
                 child: Text(
                   _suggestions[i],
@@ -539,7 +539,7 @@ class _InputBar extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: 'Ask me anything...',
                   hintStyle: TextStyle(
-                      color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+                      color: cs.onSurfaceVariant.withOpacity(0.6)),
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 10),
                   border: OutlineInputBorder(

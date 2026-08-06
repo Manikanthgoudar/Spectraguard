@@ -22,7 +22,7 @@ Future<String> downloadPdf({
   // Create a blob URL and click a hidden anchor to trigger download
   final blob = html.Blob([bytes], 'application/pdf');
   final url = html.Url.createObjectUrlFromBlob(blob);
-  final anchor = html.AnchorElement(href: url)
+  html.AnchorElement(href: url)
     ..setAttribute('download', 'spectraguard_report_test$testId.pdf')
     ..click();
   html.Url.revokeObjectUrl(url);

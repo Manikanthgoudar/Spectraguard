@@ -200,7 +200,7 @@ class _UserTile extends ConsumerWidget {
         children: [
           CircleAvatar(
             radius: 22,
-            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+            backgroundColor: AppColors.primary.withOpacity(0.1),
             child: Text(
               user.fullName.isNotEmpty
                   ? user.fullName[0].toUpperCase()
@@ -239,7 +239,7 @@ class _UserTile extends ConsumerWidget {
           // Toggle active/inactive
           Switch.adaptive(
             value: isActive,
-            activeThumbColor: AppColors.genuine,
+            activeColor: AppColors.genuine,
             onChanged: (v) {
               ref.read(adminUsersProvider.notifier).updateUser(
                     user.id,
@@ -263,7 +263,7 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(

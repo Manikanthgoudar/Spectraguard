@@ -135,22 +135,22 @@ class _ResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, icon, desc) = switch (test.classificationResult) {
       ClassificationResult.genuine => (
-          AppColors.genuine.withValues(alpha: 0.08),
+          AppColors.genuine.withOpacity(0.08),
           Icons.check_circle_outline,
           'Drug authenticated as genuine based on spectral analysis.',
         ),
       ClassificationResult.potentially_counterfeit => (
-          AppColors.counterfeit.withValues(alpha: 0.08),
+          AppColors.counterfeit.withOpacity(0.08),
           Icons.dangerous_outlined,
           'Warning: Spectral profile is inconsistent. Possible counterfeit.',
         ),
       ClassificationResult.requires_verification => (
-          AppColors.requiresVerification.withValues(alpha: 0.08),
+          AppColors.requiresVerification.withOpacity(0.08),
           Icons.warning_amber_outlined,
           'Spectral similarity is ambiguous. Further verification recommended.',
         ),
       ClassificationResult.pending => (
-          AppColors.pending.withValues(alpha: 0.08),
+          AppColors.pending.withOpacity(0.08),
           Icons.hourglass_empty,
           'Test has not been classified yet.',
         ),
@@ -188,7 +188,7 @@ class _ResultCard extends StatelessWidget {
                   LinearProgressIndicator(
                     value: val,
                     backgroundColor:
-                        _colorForResult(test.classificationResult).withValues(alpha: 0.2),
+                        _colorForResult(test.classificationResult).withOpacity(0.2),
                     valueColor: AlwaysStoppedAnimation<Color>(
                       _colorForResult(test.classificationResult),
                     ),

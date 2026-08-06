@@ -45,7 +45,7 @@ class ReportScreen extends ConsumerWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
+                  color: AppColors.error.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: const Icon(Icons.picture_as_pdf_outlined,
@@ -73,7 +73,7 @@ class ReportScreen extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.08),
+                    color: AppColors.error.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -94,7 +94,7 @@ class ReportScreen extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.genuine.withValues(alpha: 0.08),
+                    color: AppColors.genuine.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(

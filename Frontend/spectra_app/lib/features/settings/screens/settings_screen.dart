@@ -300,7 +300,7 @@ class _SettingsCard extends StatelessWidget {
         border: Border.all(color: cs.outline),
         boxShadow: [
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.04),
+            color: cs.shadow.withOpacity(0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -344,7 +344,7 @@ class _SettingsTile extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: effectiveIconColor.withValues(alpha: 0.10),
+                color: effectiveIconColor.withOpacity(0.10),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: effectiveIconColor, size: 18),
@@ -364,7 +364,7 @@ class _SettingsTile extends StatelessWidget {
             if (onTap != null)
               Icon(
                 Icons.chevron_right_rounded,
-                color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                color: cs.onSurfaceVariant.withOpacity(0.5),
                 size: 20,
               ),
           ],
@@ -420,7 +420,7 @@ class _ThemeSelector extends ConsumerWidget {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.10),
+                  color: AppColors.primary.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.palette_outlined,
@@ -454,14 +454,14 @@ class _ThemeSelector extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
                         color: selected
-                            ? AppColors.primary.withValues(alpha: 0.12)
+                            ? AppColors.primary.withOpacity(0.12)
                             : cs.surfaceContainerHighest
-                                .withValues(alpha: 0.4),
+                                .withOpacity(0.4),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: selected
-                              ? AppColors.primary.withValues(alpha: 0.4)
-                              : cs.outline.withValues(alpha: 0.5),
+                              ? AppColors.primary.withOpacity(0.4)
+                              : cs.outline.withOpacity(0.5),
                           width: selected ? 1.5 : 1,
                         ),
                       ),

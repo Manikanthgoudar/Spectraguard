@@ -87,7 +87,7 @@ class ProfileAvatar extends ConsumerWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.35),
+            color: AppColors.primary.withOpacity(0.35),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -96,11 +96,11 @@ class ProfileAvatar extends ConsumerWidget {
     } else {
       decoration = BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.primary.withValues(alpha: 0.12),
+        color: AppColors.primary.withOpacity(0.12),
         border: borderWidth > 0
             ? Border.all(
                 color: borderColor ??
-                    AppColors.primary.withValues(alpha: 0.25),
+                    AppColors.primary.withOpacity(0.25),
                 width: borderWidth,
               )
             : null,
