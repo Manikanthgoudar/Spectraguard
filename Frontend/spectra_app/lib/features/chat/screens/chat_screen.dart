@@ -27,11 +27,14 @@ String _botReply(String input) {
         'the spectral fingerprint matches the authenticated reference compound, '
         'verifying both the presence and proper ratio of the Active Pharmaceutical Ingredient (API).';
   }
-  if (q.contains('counterfeit') || q.contains('fake')) {
+  if (q.contains('counterfeit') || q.contains('fake') || q.contains('suspect')) {
     return 'A **Potentially Counterfeit** result is returned when the cosine similarity '
         'falls below 85% (< 0.850). This indicates missing diagnostic peaks, significant '
-        'wavenumber shifts, or foreign spectral artifacts. **Action:** Quarantine the batch '
-        'immediately, log the serial number, and send a sample for confirmatory HPLC / LC-MS analysis.';
+        'wavenumber shifts, or foreign spectral artifacts.\n\n'
+        '**Action Protocol:**\n'
+        '1. Quarantine the batch immediately.\n'
+        '2. Log serial numbers and lot information.\n'
+        '3. Submit a sample for confirmatory HPLC / LC-MS analysis.';
   }
   if (q.contains('borderline') || q.contains('verification') || q.contains('verify')) {
     return 'A **Requires Verification** result (85% – 97% similarity) is borderline. '
@@ -41,7 +44,7 @@ String _botReply(String input) {
   }
   if (q.contains('cosine') || q.contains('similarity')) {
     return 'Cosine similarity calculates the dot product of normalized spectral vectors:\n'
-        '• Formula: Sim(A, B) = (A · B) / (||A|| × ||B||)\n\n'
+        '• **Formula**: Sim(A, B) = (A · B) / (||A|| × ||B||)\n\n'
         'A score of 1.000 means identical spectra. SpectraGuard thresholds:\n'
         '• **≥ 0.970**: Genuine\n'
         '• **0.850 – 0.969**: Requires Verification\n'
@@ -68,11 +71,19 @@ String _botReply(String input) {
         '4. Prominent peak alignment tables (cm⁻¹ shifts)\n'
         '5. AI diagnostic rationale & regulatory compliance stamps';
   }
-  if (q.contains('hello') || q.contains('hi') || q.contains('hey')) {
-    return 'Hello! I\'m your SpectraGuard AI Assistant. Ask me anything about '
-        'pharmaceutical testing, Raman spectroscopy, cosine similarity, or how to handle suspect samples!';
+  if (q.contains('metformin')) {
+    return '**Metformin HCl** is an antidiabetic agent with characteristic Raman peaks at ~735 cm⁻¹, ~938 cm⁻¹, and ~1060 cm⁻¹. '
+        'SpectraGuard compares uploaded spectral scans against authenticated reference samples to ensure active API concentration.';
   }
-  if (q.contains('help') || q.contains('what can you')) {
+  if (q.contains('amoxicillin')) {
+    return '**Amoxicillin** is a broad-spectrum beta-lactam antibiotic. Key Raman diagnostic bands appear around ~850 cm⁻¹, ~1240 cm⁻¹, and ~1600 cm⁻¹. '
+        'Spectral degradation or peak attenuation indicates sub-potent or counterfeit formulations.';
+  }
+  if (q.contains('hello') || q.contains('hi') || q.contains('hey') || q.contains('greetings')) {
+    return 'Hello! I\'m your **SpectraGuard AI Assistant**. How can I assist you today with pharmaceutical testing, '
+        'Raman spectral analysis, cosine similarity thresholds, or test reporting?';
+  }
+  if (q.contains('help') || q.contains('what can you') || q.contains('capability')) {
     return 'I can assist you with:\n'
         '• **Classification**: Genuine vs Counterfeit thresholds\n'
         '• **Spectral Math**: Cosine similarity & peak prominence\n'
@@ -82,8 +93,8 @@ String _botReply(String input) {
         'Feel free to type your question or select a suggested topic below!';
   }
 
-  return 'I don\'t have a direct answer for that specific phrasing, but I can help with '
-      'classification rules, cosine similarity, Raman spectroscopy, uploading CSVs, or PDF reporting. '
+  return 'Regarding **"$input"**: I am ready to assist with pharmaceutical verification, '
+      'spectral cosine similarity, Raman peak matching, or quarantine protocol rules. '
       'Type **help** to see all available topics.';
 }
 

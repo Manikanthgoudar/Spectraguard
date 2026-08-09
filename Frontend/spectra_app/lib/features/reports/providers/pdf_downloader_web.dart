@@ -5,6 +5,7 @@ library;
 /// Web implementation of PDF download.
 /// Fetches the PDF bytes and triggers a browser "Save As" dialog.
 import 'dart:html' as html;
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 
 Future<String> downloadPdf({
@@ -22,7 +23,8 @@ Future<String> downloadPdf({
     throw Exception('Received empty PDF from server');
   }
 
-  final blob = html.Blob([bytes], 'application/pdf');
+  final uint8List = bytes is Uint8List ? bytes : Uint8List.fromList(bytes);
+  final blob = html.Blob([uint8List], 'application/pdf');
   final url = html.Url.createObjectUrlFromBlob(blob);
   html.AnchorElement(href: url)
     ..setAttribute('download', 'spectraguard_report_test$testId.pdf')

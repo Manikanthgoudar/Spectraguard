@@ -5,7 +5,7 @@
       "name": "spectra_app (physical device)",
       "request": "launch",
       "type": "dart",
-      "args": ["--dart-define=DEV_MACHINE_IP= 10.192.187.202"]
+      "args": ["--dart-define=DEV_MACHINE_IP=flutter run --dart-define=DEV_MACHINE_IP=192.168.0.107"]
     },
     {
       "name": "spectra_app (emulator)",

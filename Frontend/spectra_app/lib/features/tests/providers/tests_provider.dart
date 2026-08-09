@@ -8,7 +8,11 @@ final testsProvider =
 
 class TestsNotifier extends AsyncNotifier<List<SpectraTest>> {
   @override
-  Future<List<SpectraTest>> build() => _fetch();
+  Future<List<SpectraTest>> build() {
+    final userId = ref.watch(authProvider.select((s) => s.user?.id));
+    if (userId == null) return Future.value([]);
+    return _fetch();
+  }
 
   Future<List<SpectraTest>> _fetch({
     String? drugName,

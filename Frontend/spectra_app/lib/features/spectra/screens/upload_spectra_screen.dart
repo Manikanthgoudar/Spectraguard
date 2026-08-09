@@ -7,9 +7,8 @@ import 'package:spectra_app/core/utils/responsive.dart';
 import 'package:spectra_app/features/spectra/providers/spectra_provider.dart';
 import 'package:spectra_app/shared/widgets/app_shell_app_bar.dart';
 
-// Typed aliases to avoid dynamic dispatch issues with AsyncValue.when()
+// Typed alias to avoid dynamic dispatch issues with AsyncValue.when()
 typedef _UploadState = SpectraUploadState;
-typedef _SamplesAsync = AsyncValue<List<Map<String, dynamic>>>;
 
 class UploadSpectraScreen extends ConsumerStatefulWidget {
   const UploadSpectraScreen({super.key});
@@ -100,7 +99,6 @@ class _UploadSpectraScreenState extends ConsumerState<UploadSpectraScreen> {
   @override
   Widget build(BuildContext context) {
     final uploadState = ref.watch(spectraUploadProvider);
-    final samplesAsync = ref.watch(sampleDatasetsProvider);
     final padding = context.pagePadding;
 
     return Scaffold(
@@ -112,8 +110,8 @@ class _UploadSpectraScreenState extends ConsumerState<UploadSpectraScreen> {
           child: Form(
             key: _formKey,
             child: context.isDesktop
-                ? _desktopLayout(context, uploadState, samplesAsync)
-                : _singleColumnLayout(context, uploadState, samplesAsync),
+                ? _desktopLayout(context, uploadState)
+                : _singleColumnLayout(context, uploadState),
           ),
         ),
       ),
@@ -121,19 +119,13 @@ class _UploadSpectraScreenState extends ConsumerState<UploadSpectraScreen> {
   }
 
   /// Desktop: two-column layout with upload zone on left, form on right
-  Widget _desktopLayout(BuildContext context, _UploadState uploadState, _SamplesAsync samplesAsync) {
+  Widget _desktopLayout(BuildContext context, _UploadState uploadState) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 4,
-          child: Column(
-            children: [
-              _buildFilePicker(),
-              const SizedBox(height: 24),
-              _buildSampleDatasets(context, uploadState, samplesAsync),
-            ],
-          ),
+          child: _buildFilePicker(),
         ),
         const SizedBox(width: 32),
         Expanded(
@@ -145,7 +137,7 @@ class _UploadSpectraScreenState extends ConsumerState<UploadSpectraScreen> {
   }
 
   /// Mobile / tablet: single column (original layout)
-  Widget _singleColumnLayout(BuildContext context, _UploadState uploadState, _SamplesAsync samplesAsync) {
+  Widget _singleColumnLayout(BuildContext context, _UploadState uploadState) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -157,8 +149,6 @@ class _UploadSpectraScreenState extends ConsumerState<UploadSpectraScreen> {
         _buildFields(),
         const SizedBox(height: 28),
         _buildSubmitButton(context, uploadState),
-        const SizedBox(height: 32),
-        _buildSampleDatasets(context, uploadState, samplesAsync),
       ],
     );
   }
@@ -290,73 +280,6 @@ class _UploadSpectraScreenState extends ConsumerState<UploadSpectraScreen> {
           : const Icon(Icons.cloud_upload_outlined),
       label: Text(
           uploadState.isLoading ? 'Uploading…' : 'Upload & Classify'),
-    );
-  }
-
-  Widget _buildSampleDatasets(BuildContext context, _UploadState uploadState, _SamplesAsync samplesAsync) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Sample Datasets',
-            style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 6),
-        Text(
-          'Select a preloaded sample for quick demo',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 12),
-        samplesAsync.when(
-          loading: () =>
-              const Center(child: CircularProgressIndicator()),
-          error: (_, __) => const Text('Could not load samples'),
-          data: (samples) => Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: samples
-                .map((s) => ActionChip(
-                      avatar:
-                          const Icon(Icons.description_outlined, size: 16),
-                      label: Text(
-                        s['description'] as String,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      onPressed: uploadState.isLoading
-                          ? null
-                          : () async {
-                              final filename = s['filename'] as String;
-                              final messenger =
-                                  ScaffoldMessenger.of(context);
-                              final router = GoRouter.of(context);
-                              final test = await ref
-                                  .read(spectraUploadProvider.notifier)
-                                  .uploadSample(filename);
-
-                              if (!mounted) return;
-
-                              final state =
-                                  ref.read(spectraUploadProvider);
-                              if (state.error != null) {
-                                messenger.showSnackBar(
-                                  SnackBar(
-                                    content: Text(state.error!),
-                                    backgroundColor: AppColors.error,
-                                  ),
-                                );
-                                return;
-                              }
-
-                              if (test != null) {
-                                ref
-                                    .read(spectraUploadProvider.notifier)
-                                    .reset();
-                                router.go('/classify/${test.id}');
-                              }
-                            },
-                    ))
-                .toList(),
-          ),
-        ),
-      ],
     );
   }
 }

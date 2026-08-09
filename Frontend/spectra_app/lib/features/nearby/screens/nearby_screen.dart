@@ -9,8 +9,6 @@ import '../models/nearby_facility.dart';
 import '../providers/nearby_provider.dart';
 import '../services/route_service.dart';
 
-enum NearbyViewMode { map, split, list }
-
 // ─── Type helpers ─────────────────────────────────────────────────────────────
 
 extension _TypeExt on FacilityType {
@@ -46,9 +44,7 @@ class NearbyScreen extends ConsumerStatefulWidget {
 }
 
 class _NearbyScreenState extends ConsumerState<NearbyScreen> {
-  final _searchController = TextEditingController();
   final _mapController = MapController();
-  NearbyViewMode _viewMode = NearbyViewMode.map; // Full map by default
 
   RouteResult? _activeRoute;
   bool _isRouting = false;
@@ -60,12 +56,6 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(nearbyProvider.notifier).loadFacilities();
     });
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
   }
 
   Future<void> _fetchAndShowRoute(NearbyFacility f) async {
@@ -137,90 +127,31 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
     } else if (state.isLoading && state.facilities.isEmpty) {
       body = _LoadingState(status: state.status);
     } else {
-      final mapWidget = _NearbyMapView(
-        facilities: results,
-        userLat: state.userLat,
-        userLon: state.userLon,
-        mapController: _mapController,
-        activeRoute: _activeRoute,
-        onGetDirections: _fetchAndShowRoute,
-        onClearRoute: _clearRoute,
-        onRecenter: () => ref.read(nearbyProvider.notifier).requestLocationAndRecenter(),
-      );
-
-      final listWidget = ContentContainer(
-        maxWidth: 800,
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: results.length,
-          itemBuilder: (_, i) => _FacilityCard(
-            facility: results[i],
-            isLast: i == results.length - 1,
-            onTap: () {
-              final f = results[i];
-              if (_viewMode == NearbyViewMode.list) {
-                setState(() => _viewMode = NearbyViewMode.map);
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  try {
-                    _mapController.move(LatLng(f.lat, f.lon), 15.5);
-                  } catch (_) {}
-                });
-              } else {
-                try {
-                  _mapController.move(LatLng(f.lat, f.lon), 15.5);
-                } catch (_) {}
-              }
-            },
-            onGetDirections: () {
-              final f = results[i];
-              if (_viewMode == NearbyViewMode.list) {
-                setState(() => _viewMode = NearbyViewMode.map);
-              }
-              _fetchAndShowRoute(f);
-            },
+      body = Stack(
+        children: [
+          Positioned.fill(
+            child: _NearbyMapView(
+              facilities: results,
+              userLat: state.userLat,
+              userLon: state.userLon,
+              mapController: _mapController,
+              activeRoute: _activeRoute,
+              onGetDirections: _fetchAndShowRoute,
+              onClearRoute: _clearRoute,
+              onRecenter: () => ref.read(nearbyProvider.notifier).requestLocationAndRecenter(),
+            ),
           ),
-        ),
-      );
-
-      if (_viewMode == NearbyViewMode.map) {
-        body = Stack(
-          children: [
-            Positioned.fill(child: mapWidget),
-            if (_isRouting)
-              Positioned.fill(
-                child: Container(
-                  color: Colors.black26,
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+          if (_isRouting)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black26,
+                child: const Center(
+                  child: CircularProgressIndicator(),
                 ),
               ),
-          ],
-        );
-      } else if (_viewMode == NearbyViewMode.list) {
-        body = listWidget;
-      } else {
-        // Split view
-        body = LayoutBuilder(
-          builder: (context, constraints) {
-            final isWide = constraints.maxWidth >= 768;
-            if (isWide) {
-              return Row(
-                children: [
-                  Expanded(flex: 6, child: mapWidget),
-                  Expanded(flex: 4, child: listWidget),
-                ],
-              );
-            }
-            return Column(
-              children: [
-                Expanded(flex: 5, child: mapWidget),
-                Expanded(flex: 5, child: listWidget),
-              ],
-            );
-          },
-        );
-      }
+            ),
+        ],
+      );
     }
 
     return Scaffold(
@@ -228,13 +159,6 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
       body: Column(
         children: [
           _NearbyHeader(
-            search: state.search,
-            controller: _searchController,
-            onSearch: (v) => ref.read(nearbyProvider.notifier).setSearch(v),
-            onClear: () {
-              _searchController.clear();
-              ref.read(nearbyProvider.notifier).setSearch('');
-            },
             facilityCount: state.status == NearbyStatus.success
                 ? state.facilities.length
                 : null,
@@ -245,8 +169,6 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
               final notifier = ref.read(nearbyProvider.notifier);
               notifier.setFilter(state.filter == t ? null : t);
             },
-            viewMode: _viewMode,
-            onViewModeChanged: (mode) => setState(() => _viewMode = mode),
           ),
           Expanded(child: body),
         ],
@@ -259,17 +181,9 @@ class _NearbyScreenState extends ConsumerState<NearbyScreen> {
 
 class _NearbyHeader extends StatelessWidget {
   const _NearbyHeader({
-    required this.search,
-    required this.controller,
-    required this.onSearch,
-    required this.onClear,
     this.facilityCount,
   });
 
-  final String search;
-  final TextEditingController controller;
-  final ValueChanged<String> onSearch;
-  final VoidCallback onClear;
   final int? facilityCount;
 
   @override
@@ -289,77 +203,39 @@ class _NearbyHeader extends StatelessWidget {
         bottom: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.map_outlined,
-                      color: AppColors.primary,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Nearby Facilities',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: cs.onSurface,
-                          ),
-                        ),
-                        Text(
-                          subtitle,
-                          style: TextStyle(
-                              fontSize: 12, color: cs.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.map_outlined,
+                  color: AppColors.primary,
+                  size: 24,
+                ),
               ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: controller,
-                onChanged: onSearch,
-                style: TextStyle(fontSize: 14, color: cs.onSurface),
-                decoration: InputDecoration(
-                  hintText: 'Search by name or address...',
-                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                  suffixIcon: search.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.close_rounded, size: 18),
-                          onPressed: onClear,
-                        )
-                      : null,
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: cs.outline),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: cs.outline),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: AppColors.primary, width: 1.5),
-                  ),
-                  filled: true,
-                  fillColor: Theme.of(context).scaffoldBackgroundColor,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Nearby Facilities',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                          fontSize: 12, color: cs.onSurfaceVariant),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -376,14 +252,10 @@ class _FilterBar extends StatelessWidget {
   const _FilterBar({
     required this.selected,
     required this.onSelect,
-    required this.viewMode,
-    required this.onViewModeChanged,
   });
 
   final FacilityType? selected;
   final ValueChanged<FacilityType> onSelect;
-  final NearbyViewMode viewMode;
-  final ValueChanged<NearbyViewMode> onViewModeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -397,131 +269,55 @@ class _FilterBar extends StatelessWidget {
         color: cs.surface,
         border: Border(bottom: BorderSide(color: cs.outline)),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: types.length,
-              itemBuilder: (_, i) {
-                final t = types[i];
-                final isSelected = selected == t;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => onSelect(t),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? t.color.withOpacity(0.12)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? t.color.withOpacity(0.4)
-                              : cs.outline,
-                          width: isSelected ? 1.5 : 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(t.icon,
-                              size: 14,
-                              color: isSelected ? t.color : cs.onSurfaceVariant),
-                          const SizedBox(width: 5),
-                          Text(
-                            t.label,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight:
-                                  isSelected ? FontWeight.w600 : FontWeight.w400,
-                              color: isSelected ? t.color : cs.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: types.length,
+        itemBuilder: (_, i) {
+          final t = types[i];
+          final isSelected = selected == t;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: GestureDetector(
+              onTap: () => onSelect(t),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? t.color.withOpacity(0.12)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? t.color.withOpacity(0.4)
+                        : cs.outline,
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(t.icon,
+                        size: 14,
+                        color: isSelected ? t.color : cs.onSurfaceVariant),
+                    const SizedBox(width: 5),
+                    Text(
+                      t.label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w400,
+                        color: isSelected ? t.color : cs.onSurfaceVariant,
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            height: 34,
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: cs.outline),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _ViewModeBtn(
-                  icon: Icons.map_rounded,
-                  tooltip: 'Map View',
-                  isSelected: viewMode == NearbyViewMode.map,
-                  onTap: () => onViewModeChanged(NearbyViewMode.map),
+                  ],
                 ),
-                _ViewModeBtn(
-                  icon: Icons.vertical_split_rounded,
-                  tooltip: 'Split View',
-                  isSelected: viewMode == NearbyViewMode.split,
-                  onTap: () => onViewModeChanged(NearbyViewMode.split),
-                ),
-                _ViewModeBtn(
-                  icon: Icons.view_list_rounded,
-                  tooltip: 'List View',
-                  isSelected: viewMode == NearbyViewMode.list,
-                  onTap: () => onViewModeChanged(NearbyViewMode.list),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ViewModeBtn extends StatelessWidget {
-  const _ViewModeBtn({
-    required this.icon,
-    required this.tooltip,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            size: 16,
-            color: isSelected ? Colors.white : cs.onSurfaceVariant,
-          ),
-        ),
+          );
+        },
       ),
     );
   }
