@@ -324,6 +324,7 @@ class APMTestSuite:
             apm_status = "APM TESTING FAILED"
 
         summary_test_metrics = [
+            {"category": "Overall APM", "name": "Overall APM Evaluation", "value": apm_status, "target": "APM TESTING PASSED", "status": apm_status, "description": "Master APM Status Evaluation"},
             {"category": "App Health", "name": "Application Availability", "value": "100% (Available)" if app_available else "0% (Unavailable)", "target": "100%", "status": "PASSED" if app_available else "FAILED", "description": "FastAPI Core Engine Status"},
             {"category": "Throughput", "name": "Total Monitored Requests", "value": str(total_requests), "target": "> 0", "status": "PASSED" if total_requests > 0 else "FAILED", "description": f"Throughput: {rps_global:.2f} req/s"},
             {"category": "Success Rate", "name": "Successful Requests", "value": f"{successful_requests} ({success_rate:.2f}%)", "target": "100%", "status": "PASSED" if success_rate >= 99.0 else "FAILED", "description": f"Success Rate: {success_rate:.2f}%"},
@@ -336,8 +337,7 @@ class APMTestSuite:
             {"category": "Response Time", "name": "Maximum Latency", "value": f"{round(max_lat, 2)} ms", "target": "< 2000 ms", "status": "PASSED" if max_lat < 2000.0 else "FAILED", "description": "Peak latency observed"},
             {"category": "CPU Usage", "name": "Average CPU Utilization", "value": f"{round(avg_cpu, 2)}%", "target": "< 80.0%", "status": "PASSED" if avg_cpu < 80.0 else "FAILED", "description": f"Peak CPU: {round(max_cpu, 2)}%"},
             {"category": "Memory Usage", "name": "Average Memory Usage", "value": f"{round(avg_mem, 2)} MB", "target": "Growth < 100 MB", "status": "PASSED" if mem_increase < 100.0 else "FAILED", "description": f"Max RAM: {round(max_mem, 2)} MB (+{round(mem_increase, 2)} MB growth)"},
-            {"category": "Database", "name": "Database Health", "value": self.db_status.get("status", "HEALTHY"), "target": "HEALTHY", "status": "PASSED" if self.db_status.get("status") == "HEALTHY" else "FAILED", "description": f"Ping: {self.db_status.get('latency_ms', 0.0)} ms ({self.db_status.get('db_type', 'SQLite/MySQL')})"},
-            {"category": "Overall APM", "name": "APM Execution Evaluation", "value": apm_status, "target": "APM TESTING PASSED", "status": apm_status, "description": "Master APM Status"}
+            {"category": "Database", "name": "Database Health", "value": self.db_status.get("status", "HEALTHY"), "target": "HEALTHY", "status": "PASSED" if self.db_status.get("status") == "HEALTHY" else "FAILED", "description": f"Ping: {self.db_status.get('latency_ms', 0.0)} ms ({self.db_status.get('db_type', 'SQLite/MySQL')})"}
         ]
 
         # Construct final results dictionary
@@ -465,6 +465,7 @@ class APMTestSuite:
             ]
         else:
             sum_rows = [
+                ["Overall APM", "Overall APM Evaluation", data.get("apm_status", "APM TESTING PASSED"), "APM TESTING PASSED", data.get("apm_status", "APM TESTING PASSED"), "Master APM Status Evaluation"],
                 ["App Health", "Application Availability", data["app_availability"], "100%", "PASSED" if "100%" in data["app_availability"] else "FAILED", "FastAPI Core Engine Status"],
                 ["Throughput", "Total Monitored Requests", data["total_monitored_requests"], "> 0", "PASSED" if data["total_monitored_requests"] > 0 else "FAILED", f"Throughput: {data['throughput_rps']}"],
                 ["Success Rate", "Successful Requests", data["successful_requests"], "100%", "PASSED" if data["failed_requests"] == 0 else "FAILED", f"Success Rate: {data['success_rate']}"],
@@ -477,8 +478,7 @@ class APMTestSuite:
                 ["Response Time", "Maximum Latency", f"{data['maximum_latency_ms']} ms", "< 2000 ms", "PASSED" if data['maximum_latency_ms'] < 2000 else "FAILED", "Peak latency observed"],
                 ["CPU Usage", "Average CPU Utilization", f"{data['average_cpu_usage_pct']}%", "< 80.0%", "PASSED" if data['average_cpu_usage_pct'] < 80.0 else "FAILED", f"Peak CPU: {data['maximum_cpu_usage_pct']}%"],
                 ["Memory Usage", "Average Memory Usage", f"{data['average_memory_mb']} MB", "< 500 MB", "PASSED" if data['memory_increase_mb'] < 100 else "FAILED", f"Max RAM: {data['maximum_memory_mb']} MB (+{data['memory_increase_mb']} MB growth)"],
-                ["Database", "Database Health", data["database_status"], "HEALTHY", "PASSED" if data["database_status"] == "HEALTHY" else "FAILED", f"Ping: {data['database_latency_ms']} ms ({data['database_type']})"],
-                ["Overall APM", "APM Execution Evaluation", data["apm_status"], "APM TESTING PASSED", data["apm_status"], "Master APM Status"]
+                ["Database", "Database Health", data["database_status"], "HEALTHY", "PASSED" if data["database_status"] == "HEALTHY" else "FAILED", f"Ping: {data['database_latency_ms']} ms ({data['database_type']})"]
             ]
         style_sheet(ws_sum, sum_headers, sum_rows)
 
@@ -487,7 +487,7 @@ class APMTestSuite:
         ep_headers = ["Method", "Endpoint Path", "Endpoint Name", "Requests", "Success Count", "Error Count", "Error %", "Avg Latency (ms)", "Min Latency (ms)", "Max Latency (ms)", "Throughput (req/s)", "Status"]
         ep_rows = []
         for ep_key, m in data["endpoint_metrics"].items():
-            status_str = m.get("status", "PASSED" if m["error_count"] == 0 else "FAILED")
+            status_str = m.get("status", "PASSED" if (m["error_count"] == 0 and m["error_pct"] == 0) else "FAILED")
             ep_rows.append([
                 m["method"],
                 m["endpoint"],
@@ -506,9 +506,10 @@ class APMTestSuite:
 
         # Tab 3: Request Traces
         ws_tr = wb.create_sheet(title="Request Traces & Transactions")
-        tr_headers = ["Trace ID", "Method", "Endpoint Path", "Start Time", "End Time", "Duration (ms)", "HTTP Status", "Exception / Error Details"]
+        tr_headers = ["Trace ID", "Method", "Endpoint Path", "Start Time", "End Time", "Duration (ms)", "HTTP Status", "Status", "Exception / Error Details"]
         tr_rows = []
         for tr in data["sample_traces"]:
+            tr_status = "PASSED" if (tr["status_code"] < 400 and not tr.get("exception")) else "FAILED"
             tr_rows.append([
                 tr["trace_id"],
                 tr["method"],
@@ -517,11 +518,17 @@ class APMTestSuite:
                 tr["end_time"],
                 tr["duration_ms"],
                 tr["status_code"],
+                tr_status,
                 tr["exception"] or "None"
             ])
         style_sheet(ws_tr, tr_headers, tr_rows)
 
         wb.save(filepath)
+        try:
+            import stat
+            os.chmod(filepath, stat.S_IWRITE | stat.S_IREAD)
+        except Exception:
+            pass
 
     def generate_html_report(self, data, filepath):
         """Generate a sleek, dark-themed, glassmorphic APM HTML Report."""
