@@ -365,10 +365,148 @@ class APMTestSuite:
         self.generate_html_report(results_summary, html_path)
         print(f"Generated HTML APM Dashboard Report: {os.path.abspath(html_path)}")
 
+        excel_path = os.path.join("reports", "APM_Report.xlsx")
+        self.generate_excel_report(results_summary, excel_path)
+        print(f"Generated Excel APM Report: {os.path.abspath(excel_path)}")
+
         print("\nAPM Execution Completed successfully!")
         return results_summary
 
+    def generate_excel_report(self, data, filepath):
+        """Generate a professionally styled Excel (.xlsx) APM Report workbook."""
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.utils import get_column_letter
+
+        wb = openpyxl.Workbook()
+        wb.remove(wb.active)  # Remove default sheet
+
+        # Styles
+        header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
+        
+        pass_fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
+        pass_font = Font(name="Calibri", size=10, color="375623", bold=True)
+
+        warn_fill = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
+        warn_font = Font(name="Calibri", size=10, color="B25900", bold=True)
+
+        fail_fill = PatternFill(start_color="FCE4D6", end_color="FCE4D6", fill_type="solid")
+        fail_font = Font(name="Calibri", size=10, color="C65911", bold=True)
+
+        border = Border(
+            left=Side(style='thin', color='D9D9D9'),
+            right=Side(style='thin', color='D9D9D9'),
+            top=Side(style='thin', color='D9D9D9'),
+            bottom=Side(style='thin', color='D9D9D9')
+        )
+
+        def style_sheet(ws, headers, rows):
+            ws.append(headers)
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col_num)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            ws.row_dimensions[1].height = 28
+
+            for row_idx, row_data in enumerate(rows, start=2):
+                ws.append(row_data)
+                ws.row_dimensions[row_idx].height = 20
+                for col_idx, value in enumerate(row_data, start=1):
+                    cell = ws.cell(row=row_idx, column=col_idx)
+                    cell.border = border
+                    cell.font = Font(name="Calibri", size=10)
+                    cell.alignment = Alignment(vertical="center")
+
+                    str_val = str(value).upper()
+                    if any(k in str_val for k in ["PASSED", "PASS", "GREEN", "SUCCESS", "HEALTHY"]):
+                        cell.fill = pass_fill
+                        cell.font = pass_font
+                        cell.alignment = Alignment(horizontal="center", vertical="center")
+                    elif any(k in str_val for k in ["WARNING", "WARN"]):
+                        cell.fill = warn_fill
+                        cell.font = warn_font
+                        cell.alignment = Alignment(horizontal="center", vertical="center")
+                    elif any(k in str_val for k in ["FAILED", "FAIL", "RED", "ERR", "UNHEALTHY"]):
+                        cell.fill = fail_fill
+                        cell.font = fail_font
+                        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+            for col in ws.columns:
+                max_len = 0
+                col_letter = get_column_letter(col[0].column)
+                for cell in col:
+                    val = str(cell.value or '')
+                    if '\n' in val:
+                        val = max(val.split('\n'), key=len)
+                    max_len = max(max_len, len(val))
+                ws.column_dimensions[col_letter].width = min(max(max_len + 4, 14), 60)
+
+        # Tab 1: APM Summary Metrics
+        ws_sum = wb.create_sheet(title="APM Summary Metrics")
+        sum_headers = ["Category", "Metric Name", "Measured Value", "Threshold / Baseline", "Status", "Description"]
+        sum_rows = [
+            ["App Health", "Application Availability", data["app_availability"], "100%", "PASS", "FastAPI Core Engine Status"],
+            ["Throughput", "Total Monitored Requests", data["total_monitored_requests"], "> 0", "PASS", f"Throughput: {data['throughput_rps']}"],
+            ["Success Rate", "Successful Requests", data["successful_requests"], "100%", "PASS", f"Success Rate: {data['success_rate']}"],
+            ["Error Rate", "Failed Requests", data["failed_requests"], "0", "PASS" if data["failed_requests"] == 0 else "FAIL", f"Error Rate: {data['error_rate']}"],
+            ["Response Time", "Average Latency", f"{data['average_latency_ms']} ms", "< 200 ms", "PASS", "Mean response duration"],
+            ["Response Time", "P50 Latency (Median)", f"{data['p50_latency_ms']} ms", "< 300 ms", "PASS", "50th percentile latency"],
+            ["Response Time", "P90 Latency", f"{data['p90_latency_ms']} ms", "< 500 ms", "PASS", "90th percentile latency"],
+            ["Response Time", "P95 Latency", f"{data['p95_latency_ms']} ms", "< 500 ms", "PASS" if data["p95_latency_ms"] < 500 else "WARNING", "95th percentile latency threshold"],
+            ["Response Time", "P99 Latency", f"{data['p99_latency_ms']} ms", "< 1000 ms", "PASS", "99th percentile latency"],
+            ["Response Time", "Maximum Latency", f"{data['maximum_latency_ms']} ms", "< 2000 ms", "PASS", "Peak latency observed"],
+            ["CPU Usage", "Average CPU Utilization", f"{data['average_cpu_usage_pct']}%", "< 80.0%", "PASS", f"Peak CPU: {data['maximum_cpu_usage_pct']}%"],
+            ["Memory Usage", "Average Memory Usage", f"{data['average_memory_mb']} MB", "Baseline", "PASS", f"Max RAM: {data['maximum_memory_mb']} MB (+{data['memory_increase_mb']} MB growth)"],
+            ["Database", "Database Health", data["database_status"], "HEALTHY", "PASS", f"Ping: {data['database_latency_ms']} ms ({data['database_type']})"],
+            ["Overall APM", "APM Execution Evaluation", data["apm_status"], "PASS / WARNING", "PASS" if "PASS" in data["apm_status"] else ("WARNING" if "WARNING" in data["apm_status"] else "FAIL"), "Master APM Status"]
+        ]
+        style_sheet(ws_sum, sum_headers, sum_rows)
+
+        # Tab 2: Endpoint Performance
+        ws_ep = wb.create_sheet(title="Endpoint Performance")
+        ep_headers = ["Method", "Endpoint Path", "Endpoint Name", "Requests", "Success Count", "Error Count", "Error %", "Avg Latency (ms)", "Min Latency (ms)", "Max Latency (ms)", "Throughput (req/s)", "Status"]
+        ep_rows = []
+        for ep_key, m in data["endpoint_metrics"].items():
+            status_str = "PASS" if m["error_count"] == 0 else "FAIL"
+            ep_rows.append([
+                m["method"],
+                m["endpoint"],
+                m["name"],
+                m["total_requests"],
+                m["success_count"],
+                m["error_count"],
+                f"{m['error_pct']}%",
+                m["avg_response_time"],
+                m["min_response_time"],
+                m["max_response_time"],
+                m["requests_per_sec"],
+                status_str
+            ])
+        style_sheet(ws_ep, ep_headers, ep_rows)
+
+        # Tab 3: Request Traces
+        ws_tr = wb.create_sheet(title="Request Traces & Transactions")
+        tr_headers = ["Trace ID", "Method", "Endpoint Path", "Start Time", "End Time", "Duration (ms)", "HTTP Status", "Exception / Error Details"]
+        tr_rows = []
+        for tr in data["sample_traces"]:
+            tr_rows.append([
+                tr["trace_id"],
+                tr["method"],
+                tr["endpoint"],
+                tr["start_time"],
+                tr["end_time"],
+                tr["duration_ms"],
+                tr["status_code"],
+                tr["exception"] or "None"
+            ])
+        style_sheet(ws_tr, tr_headers, tr_rows)
+
+        wb.save(filepath)
+
     def generate_html_report(self, data, filepath):
+
         """Generate a sleek, dark-themed, glassmorphic APM HTML Report."""
         status_color = "#10B981" if "PASS" in data["apm_status"] else ("#F59E0B" if "WARNING" in data["apm_status"] else "#EF4444")
         

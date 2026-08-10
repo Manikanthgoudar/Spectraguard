@@ -15,10 +15,10 @@
 | Target Endpoint | http://127.0.0.1:8000/health |
 | Total Requests | 500 |
 | Successful Requests | 500 (100.0% success) |
-| Throughput (Req/Sec) | 244.39 req/s |
-| Average Latency | 39.63 ms |
-| Min / Max Latency | 18 ms / 57 ms |
-| P50 / P90 / P99 Latency | 40 ms / 43 ms / 46 ms |
+| Throughput (Req/Sec) | 229.40 req/s |
+| Average Latency | 42.69 ms |
+| Min / Max Latency | 12 ms / 82 ms |
+| P50 / P90 / P99 Latency | 41 ms / 54 ms / 74 ms |
 | Status | 🟢 PASSED |
 
 ### 📊 Application Performance Monitoring (APM)
@@ -30,16 +30,16 @@
 | Failed Requests | 0 (0.00%) | 0 | 🟢 PASSED |
 | Success Rate | 100.00% | >= 99.0% | 🟢 PASSED |
 | Error Rate | 0.00% | < 1.0% | 🟢 PASSED |
-| Average Response Time | 102.25 ms | < 200 ms | 🟢 PASSED |
-| P50 Latency (Median) | 15.77 ms | < 300 ms | 🟢 PASSED |
-| P95 Latency | 454.04 ms | < 500 ms | 🟢 PASSED |
-| P99 Latency | 2074.05 ms | < 1000 ms | 🟢 PASSED |
-| Maximum Latency | 2300.42 ms | < 2000 ms | 🟢 PASSED |
-| Average CPU Usage | 48.01% | < 80.0% | 🟢 PASSED |
+| Average Response Time | 125.98 ms | < 200 ms | 🟢 PASSED |
+| P50 Latency (Median) | 18.8 ms | < 300 ms | 🟢 PASSED |
+| P95 Latency | 48.69 ms | < 500 ms | 🟢 PASSED |
+| P99 Latency | 2565.91 ms | < 1000 ms | 🟢 PASSED |
+| Maximum Latency | 3051.21 ms | < 2000 ms | 🟢 PASSED |
+| Average CPU Usage | 63.65% | < 80.0% | 🟢 PASSED |
 | Maximum CPU Usage | 100.0% | < 90.0% | 🟢 PASSED |
-| Average Memory Usage | 58.39 MB | Baseline | 🟢 PASSED |
-| Maximum Memory Usage | 58.4 MB | Growth < 100 MB | 🟢 PASSED |
-| Database Status | HEALTHY (3.07 ms) | HEALTHY | 🟢 PASSED |
+| Average Memory Usage | 59.18 MB | Baseline | 🟢 PASSED |
+| Maximum Memory Usage | 59.19 MB | Growth < 100 MB | 🟢 PASSED |
+| Database Status | HEALTHY (1.9 ms) | HEALTHY | 🟢 PASSED |
 | APM Status | 🟢 PASS | PASS / WARNING | 🟢 PASS |
 
 <details>
