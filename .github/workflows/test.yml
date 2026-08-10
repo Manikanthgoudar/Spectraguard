@@ -47,3 +47,13 @@ jobs:
           name: SpectraGuard_Test_Report
           path: SpectraGuard_Test_Report.xlsx
           if-no-files-found: error
+
+      - name: Upload APM HTML & JSON Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpectraGuard_APM_Reports
+          path: |
+            reports/apm_report.html
+            reports/apm_report.json
+          if-no-files-found: warn
+

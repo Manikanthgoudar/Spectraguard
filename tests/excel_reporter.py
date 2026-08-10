@@ -58,11 +58,17 @@ class ExcelReporter:
 
                 # Format Status column if present
                 str_val = str(value).upper()
-                if str_val in ["PASSED", "PASS", "GREEN", "SUCCESS"]:
+                if any(k in str_val for k in ["PASSED", "PASS", "GREEN", "SUCCESS"]):
                     cell.fill = self.pass_fill
                     cell.font = self.pass_font
                     cell.alignment = Alignment(horizontal="center", vertical="center")
-                elif str_val in ["FAILED", "FAIL", "RED", "VULNERABLE"]:
+                elif any(k in str_val for k in ["WARNING", "WARN"]):
+                    warn_fill = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
+                    warn_font = Font(name="Calibri", size=10, color="B25900", bold=True)
+                    cell.fill = warn_fill
+                    cell.font = warn_font
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
+                elif any(k in str_val for k in ["FAILED", "FAIL", "RED", "VULNERABLE", "ERR"]):
                     cell.fill = self.fail_fill
                     cell.font = self.fail_font
                     cell.alignment = Alignment(horizontal="center", vertical="center")

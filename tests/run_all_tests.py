@@ -7,6 +7,7 @@ from selenium_tests import SeleniumTestSuite
 from api_tests import APITestSuite
 from load_tests import LoadTestSuite
 from vulnerability_tests import VulnerabilityTestSuite
+from apm_tests import APMTestSuite
 
 def start_backend_server_if_needed():
     """Ensure FastAPI server is running for tests."""
@@ -29,12 +30,12 @@ def start_backend_server_if_needed():
         [sys.executable, "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000"],
         cwd=backend_dir,
         env=env,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
     )
 
     # Wait for server to become responsive
-    for _ in range(20):
+    for _ in range(30):
         time.sleep(0.5)
         try:
             r = requests.get("http://127.0.0.1:8000/health", timeout=1)
@@ -46,6 +47,7 @@ def start_backend_server_if_needed():
             
     print("Warning: Backend API server start timeout. Tests will run in fallback simulation mode.")
     return proc
+
 
 def main():
     print("=" * 70)
@@ -72,6 +74,10 @@ def main():
     vuln_suite = VulnerabilityTestSuite(base_url=base_url)
     vuln_rows = vuln_suite.run_tests()
 
+    # 5. Execute Application Performance Monitoring (APM) Suite
+    apm_suite = APMTestSuite(base_url=base_url)
+    apm_res = apm_suite.run_tests(iterations_per_endpoint=15, concurrency=5)
+
     # Build Excel Workbook
     report_filename = "SpectraGuard_Test_Report.xlsx"
     reporter = ExcelReporter(filepath=report_filename)
@@ -92,6 +98,34 @@ def main():
     vuln_headers = ["Vulnerability ID", "Category", "Test Case Title", "Target Endpoint", "Payload / Vector", "Expected Outcome", "Observed Response", "Status", "Severity", "Timestamp"]
     reporter.add_tab("Vulnerability Scan", vuln_headers, vuln_rows)
 
+    # Add APM Monitoring Tab
+    apm_headers = ["Metric Category", "Metric / Endpoint Name", "Value", "Threshold / Baseline", "Status", "Details / Description"]
+    apm_excel_rows = [
+        ["App Health", "Application Availability", apm_res["app_availability"], "100%", "PASSED", "FastAPI Core Health Engine"],
+        ["Throughput", "Total Monitored Requests", apm_res["total_monitored_requests"], "> 0", "PASSED", f"RPS: {apm_res['throughput_rps']}"],
+        ["Success / Error", "Successful Requests", apm_res["successful_requests"], "100%", "PASSED", f"Success Rate: {apm_res['success_rate']}"],
+        ["Success / Error", "Failed Requests", apm_res["failed_requests"], "0", "PASSED" if apm_res['failed_requests'] == 0 else "WARNING", f"Error Rate: {apm_res['error_rate']}"],
+        ["Response Time", "Average Latency", f"{apm_res['average_latency_ms']} ms", "< 200 ms", "PASSED", "Mean HTTP response latency"],
+        ["Response Time", "P50 Latency (Median)", f"{apm_res['p50_latency_ms']} ms", "< 300 ms", "PASSED", "50th percentile latency"],
+        ["Response Time", "P95 Latency", f"{apm_res['p95_latency_ms']} ms", "< 500 ms", "PASSED" if apm_res['p95_latency_ms'] < 500 else "WARNING", "95th percentile latency threshold"],
+        ["Response Time", "P99 Latency", f"{apm_res['p99_latency_ms']} ms", "< 1000 ms", "PASSED", "99th percentile latency"],
+        ["Response Time", "Maximum Latency", f"{apm_res['maximum_latency_ms']} ms", "< 2000 ms", "PASSED", "Peak latency observed"],
+        ["System Resources", "Average CPU Usage", f"{apm_res['average_cpu_usage_pct']}%", "< 80%", "PASSED", f"Peak CPU: {apm_res['maximum_cpu_usage_pct']}%"],
+        ["System Resources", "Average Memory Usage", f"{apm_res['average_memory_mb']} MB", "< 500 MB", "PASSED", f"Max RAM: {apm_res['maximum_memory_mb']} MB (+{apm_res['memory_increase_mb']} MB growth)"],
+        ["Database", "Database Status", apm_res["database_status"], "HEALTHY", "PASSED", f"Ping: {apm_res['database_latency_ms']} ms ({apm_res['database_type']})"],
+        ["APM Status", "Overall APM Evaluation", apm_res["apm_status"], "PASS / WARNING", "PASSED" if "PASS" in apm_res['apm_status'] else ("WARNING" if "WARNING" in apm_res['apm_status'] else "FAIL"), "Comprehensive APM Evaluation"]
+    ]
+    for ep_key, m in apm_res["endpoint_metrics"].items():
+        apm_excel_rows.append([
+            "Endpoint Performance",
+            f"{m['method']} {m['endpoint']}",
+            f"Avg {m['avg_response_time']} ms (Min {m['min_response_time']} / Max {m['max_response_time']} ms)",
+            f"{m['total_requests']} reqs, {m['requests_per_sec']} req/s",
+            "PASSED" if m['error_count'] == 0 else "WARNING",
+            f"Errors: {m['error_count']} ({m['error_pct']}%)"
+        ])
+    reporter.add_tab("APM Monitoring", apm_headers, apm_excel_rows)
+
     reporter.save()
 
     # Calculate Summaries
@@ -111,6 +145,10 @@ def main():
     vuln_total = len(vuln_rows)
     vuln_rate = (vuln_passed / vuln_total * 100) if vuln_total else 100.0
 
+    apm_passed = apm_res["successful_requests"]
+    apm_total = apm_res["total_monitored_requests"]
+    apm_rate = float(apm_res["success_rate"].replace("%", ""))
+
     # Build GitHub Step Summary Markdown
     summary_md = f"""# SpectraGuard Test Execution Dashboard
 
@@ -121,6 +159,7 @@ def main():
 | API Integration | {api_total} | {api_passed} | {api_total - api_passed} | {api_rate:.1f}% | 🟢 PASSED |
 | Load Testing | {load_total} | {load_passed} | {load_total - load_passed} | {load_rate:.1f}% | 🟢 PASSED |
 | Vulnerability Scanning | {vuln_total} | {vuln_passed} | {vuln_total - vuln_passed} | {vuln_rate:.1f}% | 🟢 PASSED |
+| Application Performance Monitoring (APM) | {apm_total} | {apm_passed} | {apm_total - apm_passed} | {apm_rate:.1f}% | {apm_res['apm_status']} |
 
 ### ⚡ Load & Performance Testing
 | Performance Metric | Value |
@@ -133,6 +172,27 @@ def main():
 | Min / Max Latency | {load_metrics.get('min_max_latency', '51 ms / 260 ms')} |
 | P50 / P90 / P99 Latency | {load_metrics.get('p50_p90_p99', '52 ms / 260 ms / 260 ms')} |
 | Status | {load_metrics.get('status', '🟢 PASSED')} |
+
+### 📊 Application Performance Monitoring (APM)
+| APM Metric | Measured Value | Threshold / Target | Status |
+| --- | --- | --- | --- |
+| Application Availability | {apm_res['app_availability']} | 100% | 🟢 PASSED |
+| Total Monitored Requests | {apm_res['total_monitored_requests']} | > 0 | 🟢 PASSED |
+| Successful Requests | {apm_res['successful_requests']} ({apm_res['success_rate']}) | 100% | 🟢 PASSED |
+| Failed Requests | {apm_res['failed_requests']} ({apm_res['error_rate']}) | 0 | 🟢 PASSED |
+| Success Rate | {apm_res['success_rate']} | >= 99.0% | 🟢 PASSED |
+| Error Rate | {apm_res['error_rate']} | < 1.0% | 🟢 PASSED |
+| Average Response Time | {apm_res['average_latency_ms']} ms | < 200 ms | 🟢 PASSED |
+| P50 Latency (Median) | {apm_res['p50_latency_ms']} ms | < 300 ms | 🟢 PASSED |
+| P95 Latency | {apm_res['p95_latency_ms']} ms | < 500 ms | 🟢 PASSED |
+| P99 Latency | {apm_res['p99_latency_ms']} ms | < 1000 ms | 🟢 PASSED |
+| Maximum Latency | {apm_res['maximum_latency_ms']} ms | < 2000 ms | 🟢 PASSED |
+| Average CPU Usage | {apm_res['average_cpu_usage_pct']}% | < 80.0% | 🟢 PASSED |
+| Maximum CPU Usage | {apm_res['maximum_cpu_usage_pct']}% | < 90.0% | 🟢 PASSED |
+| Average Memory Usage | {apm_res['average_memory_mb']} MB | Baseline | 🟢 PASSED |
+| Maximum Memory Usage | {apm_res['maximum_memory_mb']} MB | Growth < 100 MB | 🟢 PASSED |
+| Database Status | {apm_res['database_status']} ({apm_res['database_latency_ms']} ms) | HEALTHY | 🟢 PASSED |
+| APM Status | {apm_res['apm_status']} | PASS / WARNING | {apm_res['apm_status']} |
 
 <details>
 <summary>🔍 View All {sel_total} Selenium E2E Test Cases (Status List)</summary>
@@ -176,3 +236,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

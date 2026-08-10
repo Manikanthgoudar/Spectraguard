@@ -11,7 +11,8 @@ from app.config import settings
 from app.core.logging_config import logger
 # Import models so SQLAlchemy metadata is populated (needed for create_all)
 from app.models import User, ReferenceSpectrum, Test, SpectraData, Report, ChatMessage  # noqa: F401
-from app.routers import auth, spectra, classify, tests, reference, reports, admin, nearby, chat
+from app.core.apm_middleware import APMMiddleware
+from app.routers import auth, spectra, classify, tests, reference, reports, admin, nearby, chat, apm
 
 # Profile photos directory (created on startup)
 PHOTOS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads", "photos")
@@ -49,7 +50,9 @@ app = FastAPI(
 )
 
 
-# ── CORS ────────────────────────────────────────────────────────────────────
+# ── APM Middleware & CORS ───────────────────────────────────────────────────
+app.add_middleware(APMMiddleware)
+
 _cors_origins = settings.cors_origins_list
 # Browsers reject allow_credentials=True with a wildcard origin.
 # Use credentials only when explicit origins are listed.
@@ -88,6 +91,8 @@ app.include_router(reports.router)
 app.include_router(admin.router)
 app.include_router(nearby.router)
 app.include_router(chat.router)
+app.include_router(apm.router)
+
 
 # ── Static files (profile photos) ───────────────────────────────────────────
 # Must be mounted AFTER routers so /uploads/photos/* is served as static files

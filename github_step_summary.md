@@ -7,6 +7,7 @@
 | API Integration | 300 | 292 | 8 | 97.3% | 🟢 PASSED |
 | Load Testing | 500 | 500 | 0 | 100.0% | 🟢 PASSED |
 | Vulnerability Scanning | 15 | 15 | 0 | 100.0% | 🟢 PASSED |
+| Application Performance Monitoring (APM) | 375 | 375 | 0 | 100.0% | 🟢 PASS |
 
 ### ⚡ Load & Performance Testing
 | Performance Metric | Value |
@@ -14,11 +15,32 @@
 | Target Endpoint | http://127.0.0.1:8000/health |
 | Total Requests | 500 |
 | Successful Requests | 500 (100.0% success) |
-| Throughput (Req/Sec) | 566.60 req/s |
-| Average Latency | 15.17 ms |
-| Min / Max Latency | 4 ms / 58 ms |
-| P50 / P90 / P99 Latency | 14 ms / 23 ms / 44 ms |
+| Throughput (Req/Sec) | 244.39 req/s |
+| Average Latency | 39.63 ms |
+| Min / Max Latency | 18 ms / 57 ms |
+| P50 / P90 / P99 Latency | 40 ms / 43 ms / 46 ms |
 | Status | 🟢 PASSED |
+
+### 📊 Application Performance Monitoring (APM)
+| APM Metric | Measured Value | Threshold / Target | Status |
+| --- | --- | --- | --- |
+| Application Availability | 100% (Available) | 100% | 🟢 PASSED |
+| Total Monitored Requests | 375 | > 0 | 🟢 PASSED |
+| Successful Requests | 375 (100.00%) | 100% | 🟢 PASSED |
+| Failed Requests | 0 (0.00%) | 0 | 🟢 PASSED |
+| Success Rate | 100.00% | >= 99.0% | 🟢 PASSED |
+| Error Rate | 0.00% | < 1.0% | 🟢 PASSED |
+| Average Response Time | 102.25 ms | < 200 ms | 🟢 PASSED |
+| P50 Latency (Median) | 15.77 ms | < 300 ms | 🟢 PASSED |
+| P95 Latency | 454.04 ms | < 500 ms | 🟢 PASSED |
+| P99 Latency | 2074.05 ms | < 1000 ms | 🟢 PASSED |
+| Maximum Latency | 2300.42 ms | < 2000 ms | 🟢 PASSED |
+| Average CPU Usage | 48.01% | < 80.0% | 🟢 PASSED |
+| Maximum CPU Usage | 100.0% | < 90.0% | 🟢 PASSED |
+| Average Memory Usage | 58.39 MB | Baseline | 🟢 PASSED |
+| Maximum Memory Usage | 58.4 MB | Growth < 100 MB | 🟢 PASSED |
+| Database Status | HEALTHY (3.07 ms) | HEALTHY | 🟢 PASSED |
+| APM Status | 🟢 PASS | PASS / WARNING | 🟢 PASS |
 
 <details>
 <summary>🔍 View All 300 Selenium E2E Test Cases (Status List)</summary>

@@ -34,25 +34,28 @@ VERIFY_COLOR = colors.HexColor("#E65100")   # amber orange
 LIGHT_BG = colors.HexColor("#F8F9FA")
 BORDER_COLOR = colors.HexColor("#CFD8DC")
 TEXT_COLOR = colors.HexColor("#263238")
+MID_GRAY = colors.HexColor("#78909C")
 
 
-def _result_color(result: str) -> colors.Color:
+def _result_color(result: Any) -> colors.Color:
+    val = str(result.value if hasattr(result, "value") else result)
     mapping = {
         "genuine": GENUINE_COLOR,
         "potentially_counterfeit": COUNTERFEIT_COLOR,
         "requires_verification": VERIFY_COLOR,
     }
-    return mapping.get(result, colors.black)
+    return mapping.get(val, colors.black)
 
 
-def _result_label(result: str) -> str:
+def _result_label(result: Any) -> str:
+    val = str(result.value if hasattr(result, "value") else result)
     labels = {
         "genuine": "✓ GENUINE",
         "potentially_counterfeit": "⚠ POTENTIALLY COUNTERFEIT",
         "requires_verification": "? REQUIRES FURTHER VERIFICATION",
         "pending": "PENDING",
     }
-    return labels.get(result, result.upper())
+    return labels.get(val, val.upper())
 
 
 def _make_cell(text: Any, is_header: bool = False, align: int = TA_LEFT) -> Paragraph:
@@ -302,8 +305,9 @@ def generate_pdf_report(test: Any, user: Any, spectra: Any, reference: Any, outp
             "Further laboratory analysis is required before a definitive conclusion can be drawn."
         ),
     }
+    res_key = str(test.classification_result.value if hasattr(test.classification_result, "value") else test.classification_result)
     explanation = explanations.get(
-        test.classification_result,
+        res_key,
         "Classification pending or result unavailable."
     )
     story.append(Paragraph(explanation, body_style))

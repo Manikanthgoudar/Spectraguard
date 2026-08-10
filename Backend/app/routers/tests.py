@@ -20,6 +20,7 @@ def list_tests(
     result: Optional[ClassificationResult] = Query(None, description="Filter by classification result"),
     date_from: Optional[str] = Query(None, description="Filter from date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Filter to date (YYYY-MM-DD)"),
+    all_users: bool = Query(False, description="Admin only: set to true to list tests across all users"),
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
@@ -27,6 +28,9 @@ def list_tests(
 ):
     """List all tests for the current user with optional filters."""
     query = db.query(Test)
+
+    if not (all_users and current_user.role == UserRole.admin):
+        query = query.filter(Test.user_id == current_user.id)
 
     if drug_name:
         query = query.filter(Test.drug_name.ilike(f"%{drug_name}%"))
@@ -61,6 +65,9 @@ def get_test(
     test = db.query(Test).filter(Test.id == test_id).first()
     if not test:
         raise HTTPException(status_code=404, detail="Test not found")
+
+    if current_user.role != UserRole.admin and test.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Access denied")
 
     return test
 
