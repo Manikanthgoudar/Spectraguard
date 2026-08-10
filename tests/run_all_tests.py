@@ -104,16 +104,16 @@ def main():
         ["App Health", "Application Availability", apm_res["app_availability"], "100%", "PASSED", "FastAPI Core Health Engine"],
         ["Throughput", "Total Monitored Requests", apm_res["total_monitored_requests"], "> 0", "PASSED", f"RPS: {apm_res['throughput_rps']}"],
         ["Success / Error", "Successful Requests", apm_res["successful_requests"], "100%", "PASSED", f"Success Rate: {apm_res['success_rate']}"],
-        ["Success / Error", "Failed Requests", apm_res["failed_requests"], "0", "PASSED" if apm_res['failed_requests'] == 0 else "WARNING", f"Error Rate: {apm_res['error_rate']}"],
+        ["Success / Error", "Failed Requests", apm_res["failed_requests"], "0", "PASSED" if apm_res['failed_requests'] == 0 else "FAILED", f"Error Rate: {apm_res['error_rate']}"],
         ["Response Time", "Average Latency", f"{apm_res['average_latency_ms']} ms", "< 200 ms", "PASSED", "Mean HTTP response latency"],
         ["Response Time", "P50 Latency (Median)", f"{apm_res['p50_latency_ms']} ms", "< 300 ms", "PASSED", "50th percentile latency"],
-        ["Response Time", "P95 Latency", f"{apm_res['p95_latency_ms']} ms", "< 500 ms", "PASSED" if apm_res['p95_latency_ms'] < 500 else "WARNING", "95th percentile latency threshold"],
+        ["Response Time", "P95 Latency", f"{apm_res['p95_latency_ms']} ms", "< 500 ms", "PASSED" if apm_res['p95_latency_ms'] < 500 else "FAILED", "95th percentile latency threshold"],
         ["Response Time", "P99 Latency", f"{apm_res['p99_latency_ms']} ms", "< 1000 ms", "PASSED", "99th percentile latency"],
         ["Response Time", "Maximum Latency", f"{apm_res['maximum_latency_ms']} ms", "< 2000 ms", "PASSED", "Peak latency observed"],
         ["System Resources", "Average CPU Usage", f"{apm_res['average_cpu_usage_pct']}%", "< 80%", "PASSED", f"Peak CPU: {apm_res['maximum_cpu_usage_pct']}%"],
         ["System Resources", "Average Memory Usage", f"{apm_res['average_memory_mb']} MB", "< 500 MB", "PASSED", f"Max RAM: {apm_res['maximum_memory_mb']} MB (+{apm_res['memory_increase_mb']} MB growth)"],
         ["Database", "Database Status", apm_res["database_status"], "HEALTHY", "PASSED", f"Ping: {apm_res['database_latency_ms']} ms ({apm_res['database_type']})"],
-        ["APM Status", "Overall APM Evaluation", apm_res["apm_status"], "PASS / WARNING", "PASSED" if "PASS" in apm_res['apm_status'] else ("WARNING" if "WARNING" in apm_res['apm_status'] else "FAIL"), "Comprehensive APM Evaluation"]
+        ["APM Status", "Overall APM Evaluation", apm_res["apm_status"], "APM TESTING PASSED", apm_res["apm_status"], "Comprehensive APM Evaluation"]
     ]
     for ep_key, m in apm_res["endpoint_metrics"].items():
         apm_excel_rows.append([
@@ -121,7 +121,7 @@ def main():
             f"{m['method']} {m['endpoint']}",
             f"Avg {m['avg_response_time']} ms (Min {m['min_response_time']} / Max {m['max_response_time']} ms)",
             f"{m['total_requests']} reqs, {m['requests_per_sec']} req/s",
-            "PASSED" if m['error_count'] == 0 else "WARNING",
+            m.get("status", "PASSED" if m['error_count'] == 0 else "FAILED"),
             f"Errors: {m['error_count']} ({m['error_pct']}%)"
         ])
     reporter.add_tab("APM Monitoring", apm_headers, apm_excel_rows)
@@ -192,7 +192,7 @@ def main():
 | Average Memory Usage | {apm_res['average_memory_mb']} MB | Baseline | 🟢 PASSED |
 | Maximum Memory Usage | {apm_res['maximum_memory_mb']} MB | Growth < 100 MB | 🟢 PASSED |
 | Database Status | {apm_res['database_status']} ({apm_res['database_latency_ms']} ms) | HEALTHY | 🟢 PASSED |
-| APM Status | {apm_res['apm_status']} | PASS / WARNING | {apm_res['apm_status']} |
+| APM Status | {apm_res['apm_status']} | APM TESTING PASSED | {apm_res['apm_status']} |
 
 <details>
 <summary>🔍 View All {sel_total} Selenium E2E Test Cases (Status List)</summary>

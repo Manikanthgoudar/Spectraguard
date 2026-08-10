@@ -275,6 +275,8 @@ class APMTestSuite:
             err_pct = (grp["error_count"] / tot) * 100.0 if tot > 0 else 0.0
             rps = tot / total_elapsed if total_elapsed > 0 else 0.0
 
+            ep_status = "PASSED" if grp["error_count"] == 0 and err_pct == 0.0 else "FAILED"
+
             self.endpoint_metrics[ep_key] = {
                 "method": grp["method"],
                 "endpoint": grp["endpoint"],
@@ -286,7 +288,8 @@ class APMTestSuite:
                 "avg_response_time": round(float(np.mean(durs)), 2),
                 "min_response_time": round(float(np.min(durs)), 2),
                 "max_response_time": round(float(np.max(durs)), 2),
-                "requests_per_sec": round(rps, 2)
+                "requests_per_sec": round(rps, 2),
+                "status": ep_status
             }
 
         # Global latency statistics
@@ -312,16 +315,30 @@ class APMTestSuite:
         max_mem = float(np.max(mems))
         mem_increase = max_mem - init_mem
 
-        # Status Evaluation according to documented thresholds
-        # P95 < 500 ms = PASS, 500-1000 = WARNING, > 1000 = FAIL
-        # Error rate < 1% = PASS, 1-5% = WARNING, > 5% = FAIL
-        # Avg CPU < 80% = PASS, 80-90% = WARNING, > 90% = FAIL
-        if not app_available or error_rate > 5.0 or p95_lat > 1000.0 or avg_cpu > 90.0:
-            apm_status = "🔴 FAIL"
-        elif error_rate > 1.0 or p95_lat > 500.0 or avg_cpu > 80.0 or mem_increase > 100.0:
-            apm_status = "🟡 WARNING"
+        # Status Evaluation according to documented thresholds:
+        # App available == True, Error rate <= 1.0%, P95 <= 500ms, Avg CPU <= 80%, RAM growth <= 100MB, DB Healthy
+        all_endpoints_passed = all(m.get("status") == "PASSED" for m in self.endpoint_metrics.values()) if self.endpoint_metrics else True
+        if app_available and error_rate <= 1.0 and p95_lat <= 500.0 and avg_cpu <= 80.0 and mem_increase <= 100.0 and self.db_status.get("status") == "HEALTHY" and all_endpoints_passed:
+            apm_status = "APM TESTING PASSED"
         else:
-            apm_status = "🟢 PASS"
+            apm_status = "APM TESTING FAILED"
+
+        summary_test_metrics = [
+            {"category": "App Health", "name": "Application Availability", "value": "100% (Available)" if app_available else "0% (Unavailable)", "target": "100%", "status": "PASSED" if app_available else "FAILED", "description": "FastAPI Core Engine Status"},
+            {"category": "Throughput", "name": "Total Monitored Requests", "value": str(total_requests), "target": "> 0", "status": "PASSED" if total_requests > 0 else "FAILED", "description": f"Throughput: {rps_global:.2f} req/s"},
+            {"category": "Success Rate", "name": "Successful Requests", "value": f"{successful_requests} ({success_rate:.2f}%)", "target": "100%", "status": "PASSED" if success_rate >= 99.0 else "FAILED", "description": f"Success Rate: {success_rate:.2f}%"},
+            {"category": "Error Rate", "name": "Failed Requests", "value": f"{failed_requests} ({error_rate:.2f}%)", "target": "0", "status": "PASSED" if failed_requests == 0 else "FAILED", "description": f"Error Rate: {error_rate:.2f}%"},
+            {"category": "Response Time", "name": "Average Latency", "value": f"{round(avg_lat, 2)} ms", "target": "< 200 ms", "status": "PASSED" if avg_lat < 200.0 else "FAILED", "description": "Mean response duration"},
+            {"category": "Response Time", "name": "P50 Latency (Median)", "value": f"{round(p50_lat, 2)} ms", "target": "< 300 ms", "status": "PASSED" if p50_lat < 300.0 else "FAILED", "description": "50th percentile latency"},
+            {"category": "Response Time", "name": "P90 Latency", "value": f"{round(p90_lat, 2)} ms", "target": "< 500 ms", "status": "PASSED" if p90_lat < 500.0 else "FAILED", "description": "90th percentile latency"},
+            {"category": "Response Time", "name": "P95 Latency", "value": f"{round(p95_lat, 2)} ms", "target": "< 500 ms", "status": "PASSED" if p95_lat < 500.0 else "FAILED", "description": "95th percentile latency threshold"},
+            {"category": "Response Time", "name": "P99 Latency", "value": f"{round(p99_lat, 2)} ms", "target": "< 1000 ms", "status": "PASSED" if p99_lat < 1000.0 else "FAILED", "description": "99th percentile latency"},
+            {"category": "Response Time", "name": "Maximum Latency", "value": f"{round(max_lat, 2)} ms", "target": "< 2000 ms", "status": "PASSED" if max_lat < 2000.0 else "FAILED", "description": "Peak latency observed"},
+            {"category": "CPU Usage", "name": "Average CPU Utilization", "value": f"{round(avg_cpu, 2)}%", "target": "< 80.0%", "status": "PASSED" if avg_cpu < 80.0 else "FAILED", "description": f"Peak CPU: {round(max_cpu, 2)}%"},
+            {"category": "Memory Usage", "name": "Average Memory Usage", "value": f"{round(avg_mem, 2)} MB", "target": "Growth < 100 MB", "status": "PASSED" if mem_increase < 100.0 else "FAILED", "description": f"Max RAM: {round(max_mem, 2)} MB (+{round(mem_increase, 2)} MB growth)"},
+            {"category": "Database", "name": "Database Health", "value": self.db_status.get("status", "HEALTHY"), "target": "HEALTHY", "status": "PASSED" if self.db_status.get("status") == "HEALTHY" else "FAILED", "description": f"Ping: {self.db_status.get('latency_ms', 0.0)} ms ({self.db_status.get('db_type', 'SQLite/MySQL')})"},
+            {"category": "Overall APM", "name": "APM Execution Evaluation", "value": apm_status, "target": "APM TESTING PASSED", "status": apm_status, "description": "Master APM Status"}
+        ]
 
         # Construct final results dictionary
         results_summary = {
@@ -348,6 +365,8 @@ class APMTestSuite:
             "database_latency_ms": self.db_status.get("latency_ms", 0.0),
             "database_type": self.db_status.get("db_type", "SQLite/MySQL"),
             "apm_status": apm_status,
+            "overall_apm_status": apm_status,
+            "summary_test_metrics": summary_test_metrics,
             "endpoint_metrics": self.endpoint_metrics,
             "errors": self.errors_log,
             "sample_traces": self.request_traces[:50]
@@ -388,9 +407,6 @@ class APMTestSuite:
         pass_fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
         pass_font = Font(name="Calibri", size=10, color="375623", bold=True)
 
-        warn_fill = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
-        warn_font = Font(name="Calibri", size=10, color="B25900", bold=True)
-
         fail_fill = PatternFill(start_color="FCE4D6", end_color="FCE4D6", fill_type="solid")
         fail_font = Font(name="Calibri", size=10, color="C65911", bold=True)
 
@@ -420,15 +436,11 @@ class APMTestSuite:
                     cell.alignment = Alignment(vertical="center")
 
                     str_val = str(value).upper()
-                    if any(k in str_val for k in ["PASSED", "PASS", "GREEN", "SUCCESS", "HEALTHY"]):
+                    if "PASSED" in str_val or "HEALTHY" in str_val or "SUCCESS" in str_val:
                         cell.fill = pass_fill
                         cell.font = pass_font
                         cell.alignment = Alignment(horizontal="center", vertical="center")
-                    elif any(k in str_val for k in ["WARNING", "WARN"]):
-                        cell.fill = warn_fill
-                        cell.font = warn_font
-                        cell.alignment = Alignment(horizontal="center", vertical="center")
-                    elif any(k in str_val for k in ["FAILED", "FAIL", "RED", "ERR", "UNHEALTHY"]):
+                    elif "FAILED" in str_val or "UNHEALTHY" in str_val or "ERR" in str_val:
                         cell.fill = fail_fill
                         cell.font = fail_font
                         cell.alignment = Alignment(horizontal="center", vertical="center")
@@ -446,22 +458,28 @@ class APMTestSuite:
         # Tab 1: APM Summary Metrics
         ws_sum = wb.create_sheet(title="APM Summary Metrics")
         sum_headers = ["Category", "Metric Name", "Measured Value", "Threshold / Baseline", "Status", "Description"]
-        sum_rows = [
-            ["App Health", "Application Availability", data["app_availability"], "100%", "PASS", "FastAPI Core Engine Status"],
-            ["Throughput", "Total Monitored Requests", data["total_monitored_requests"], "> 0", "PASS", f"Throughput: {data['throughput_rps']}"],
-            ["Success Rate", "Successful Requests", data["successful_requests"], "100%", "PASS", f"Success Rate: {data['success_rate']}"],
-            ["Error Rate", "Failed Requests", data["failed_requests"], "0", "PASS" if data["failed_requests"] == 0 else "FAIL", f"Error Rate: {data['error_rate']}"],
-            ["Response Time", "Average Latency", f"{data['average_latency_ms']} ms", "< 200 ms", "PASS", "Mean response duration"],
-            ["Response Time", "P50 Latency (Median)", f"{data['p50_latency_ms']} ms", "< 300 ms", "PASS", "50th percentile latency"],
-            ["Response Time", "P90 Latency", f"{data['p90_latency_ms']} ms", "< 500 ms", "PASS", "90th percentile latency"],
-            ["Response Time", "P95 Latency", f"{data['p95_latency_ms']} ms", "< 500 ms", "PASS" if data["p95_latency_ms"] < 500 else "WARNING", "95th percentile latency threshold"],
-            ["Response Time", "P99 Latency", f"{data['p99_latency_ms']} ms", "< 1000 ms", "PASS", "99th percentile latency"],
-            ["Response Time", "Maximum Latency", f"{data['maximum_latency_ms']} ms", "< 2000 ms", "PASS", "Peak latency observed"],
-            ["CPU Usage", "Average CPU Utilization", f"{data['average_cpu_usage_pct']}%", "< 80.0%", "PASS", f"Peak CPU: {data['maximum_cpu_usage_pct']}%"],
-            ["Memory Usage", "Average Memory Usage", f"{data['average_memory_mb']} MB", "Baseline", "PASS", f"Max RAM: {data['maximum_memory_mb']} MB (+{data['memory_increase_mb']} MB growth)"],
-            ["Database", "Database Health", data["database_status"], "HEALTHY", "PASS", f"Ping: {data['database_latency_ms']} ms ({data['database_type']})"],
-            ["Overall APM", "APM Execution Evaluation", data["apm_status"], "PASS / WARNING", "PASS" if "PASS" in data["apm_status"] else ("WARNING" if "WARNING" in data["apm_status"] else "FAIL"), "Master APM Status"]
-        ]
+        if "summary_test_metrics" in data:
+            sum_rows = [
+                [m["category"], m["name"], m["value"], m["target"], m["status"], m["description"]]
+                for m in data["summary_test_metrics"]
+            ]
+        else:
+            sum_rows = [
+                ["App Health", "Application Availability", data["app_availability"], "100%", "PASSED" if "100%" in data["app_availability"] else "FAILED", "FastAPI Core Engine Status"],
+                ["Throughput", "Total Monitored Requests", data["total_monitored_requests"], "> 0", "PASSED" if data["total_monitored_requests"] > 0 else "FAILED", f"Throughput: {data['throughput_rps']}"],
+                ["Success Rate", "Successful Requests", data["successful_requests"], "100%", "PASSED" if data["failed_requests"] == 0 else "FAILED", f"Success Rate: {data['success_rate']}"],
+                ["Error Rate", "Failed Requests", data["failed_requests"], "0", "PASSED" if data["failed_requests"] == 0 else "FAILED", f"Error Rate: {data['error_rate']}"],
+                ["Response Time", "Average Latency", f"{data['average_latency_ms']} ms", "< 200 ms", "PASSED" if data['average_latency_ms'] < 200 else "FAILED", "Mean response duration"],
+                ["Response Time", "P50 Latency (Median)", f"{data['p50_latency_ms']} ms", "< 300 ms", "PASSED" if data['p50_latency_ms'] < 300 else "FAILED", "50th percentile latency"],
+                ["Response Time", "P90 Latency", f"{data['p90_latency_ms']} ms", "< 500 ms", "PASSED" if data['p90_latency_ms'] < 500 else "FAILED", "90th percentile latency"],
+                ["Response Time", "P95 Latency", f"{data['p95_latency_ms']} ms", "< 500 ms", "PASSED" if data['p95_latency_ms'] < 500 else "FAILED", "95th percentile latency threshold"],
+                ["Response Time", "P99 Latency", f"{data['p99_latency_ms']} ms", "< 1000 ms", "PASSED" if data['p99_latency_ms'] < 1000 else "FAILED", "99th percentile latency"],
+                ["Response Time", "Maximum Latency", f"{data['maximum_latency_ms']} ms", "< 2000 ms", "PASSED" if data['maximum_latency_ms'] < 2000 else "FAILED", "Peak latency observed"],
+                ["CPU Usage", "Average CPU Utilization", f"{data['average_cpu_usage_pct']}%", "< 80.0%", "PASSED" if data['average_cpu_usage_pct'] < 80.0 else "FAILED", f"Peak CPU: {data['maximum_cpu_usage_pct']}%"],
+                ["Memory Usage", "Average Memory Usage", f"{data['average_memory_mb']} MB", "< 500 MB", "PASSED" if data['memory_increase_mb'] < 100 else "FAILED", f"Max RAM: {data['maximum_memory_mb']} MB (+{data['memory_increase_mb']} MB growth)"],
+                ["Database", "Database Health", data["database_status"], "HEALTHY", "PASSED" if data["database_status"] == "HEALTHY" else "FAILED", f"Ping: {data['database_latency_ms']} ms ({data['database_type']})"],
+                ["Overall APM", "APM Execution Evaluation", data["apm_status"], "APM TESTING PASSED", data["apm_status"], "Master APM Status"]
+            ]
         style_sheet(ws_sum, sum_headers, sum_rows)
 
         # Tab 2: Endpoint Performance
@@ -469,7 +487,7 @@ class APMTestSuite:
         ep_headers = ["Method", "Endpoint Path", "Endpoint Name", "Requests", "Success Count", "Error Count", "Error %", "Avg Latency (ms)", "Min Latency (ms)", "Max Latency (ms)", "Throughput (req/s)", "Status"]
         ep_rows = []
         for ep_key, m in data["endpoint_metrics"].items():
-            status_str = "PASS" if m["error_count"] == 0 else "FAIL"
+            status_str = m.get("status", "PASSED" if m["error_count"] == 0 else "FAILED")
             ep_rows.append([
                 m["method"],
                 m["endpoint"],
@@ -506,13 +524,29 @@ class APMTestSuite:
         wb.save(filepath)
 
     def generate_html_report(self, data, filepath):
-
         """Generate a sleek, dark-themed, glassmorphic APM HTML Report."""
-        status_color = "#10B981" if "PASS" in data["apm_status"] else ("#F59E0B" if "WARNING" in data["apm_status"] else "#EF4444")
+        status_color = "#10B981" if "PASSED" in data["apm_status"] else "#EF4444"
         
+        summary_rows_html = ""
+        for sm in data.get("summary_test_metrics", []):
+            st = sm["status"]
+            b_style = 'background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981;' if st == "PASSED" else 'background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444;'
+            summary_rows_html += f"""
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>{sm['category']}</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">{sm['name']}</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">{sm['value']}</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">{sm['target']}</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="{b_style} padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">{st}</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">{sm['description']}</td>
+            </tr>
+            """
+
         ep_rows_html = ""
         for ep_key, m in data["endpoint_metrics"].items():
-            badge = '<span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span>' if m["error_pct"] < 1 else '<span style="background: rgba(239,68,68,0.2); color:#F87171; padding:3px 8px; border-radius:4px; font-weight:600;">ERR</span>'
+            ep_status = m.get("status", "PASSED" if m["error_count"] == 0 else "FAILED")
+            badge_style = 'background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981;' if ep_status == "PASSED" else 'background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444;'
+            badge = f'<span style="{badge_style} padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">{ep_status}</span>'
             ep_rows_html += f"""
             <tr>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>{m['method']}</strong></td>
@@ -587,6 +621,7 @@ class APMTestSuite:
             border-radius: 30px;
             font-weight: 700;
             font-size: 18px;
+            letter-spacing: 0.05em;
         }}
         .grid-cards {{
             display: grid;
@@ -698,6 +733,23 @@ class APMTestSuite:
             </div>
         </div>
 
+        <div class="section-title">📋 System Telemetry & APM Test Results</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Metric / Test Name</th>
+                    <th>Measured Value</th>
+                    <th>Target / Condition</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {summary_rows_html}
+            </tbody>
+        </table>
+
         <div class="section-title">📊 Latency Percentile Distribution</div>
         <div class="grid-cards">
             <div class="card"><div class="card-label">P50 (Median)</div><div class="card-value">{data['p50_latency_ms']} ms</div></div>
@@ -752,6 +804,7 @@ class APMTestSuite:
 """
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
+
 
 
 if __name__ == "__main__":

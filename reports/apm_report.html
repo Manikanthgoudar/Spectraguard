@@ -38,13 +38,14 @@
             font-size: 14px;
         }
         .status-pill {
-            background: #10B98122;
-            border: 2px solid #10B981;
-            color: #10B981;
+            background: #EF444422;
+            border: 2px solid #EF4444;
+            color: #EF4444;
             padding: 8px 20px;
             border-radius: 30px;
             font-weight: 700;
             font-size: 18px;
+            letter-spacing: 0.05em;
         }
         .grid-cards {
             display: grid;
@@ -120,7 +121,7 @@
                 <h1>SpectraGuard APM Test Report</h1>
                 <p>Application Performance & System Resource Telemetry Report</p>
             </div>
-            <div class="status-pill">🟢 PASS</div>
+            <div class="status-pill">APM TESTING FAILED</div>
         </div>
 
         <div class="grid-cards">
@@ -132,37 +133,180 @@
             <div class="card">
                 <div class="card-label">Monitored Requests</div>
                 <div class="card-value">375</div>
-                <div class="card-sub">Success Rate: 100.00%</div>
+                <div class="card-sub">Success Rate: 92.00%</div>
             </div>
             <div class="card">
                 <div class="card-label">Avg Response Time</div>
-                <div class="card-value">125.98 ms</div>
-                <div class="card-sub">P95: 48.69 ms | Max: 3051.21 ms</div>
+                <div class="card-value">220.06 ms</div>
+                <div class="card-sub">P95: 2048.1 ms | Max: 2952.82 ms</div>
             </div>
             <div class="card">
                 <div class="card-label">CPU Utilization</div>
-                <div class="card-value">63.65%</div>
+                <div class="card-value">56.38%</div>
                 <div class="card-sub">Peak CPU: 100.0%</div>
             </div>
             <div class="card">
                 <div class="card-label">RAM / Memory</div>
-                <div class="card-value">59.18 MB</div>
-                <div class="card-sub">Growth: +0.54 MB (Max: 59.19 MB)</div>
+                <div class="card-value">59.13 MB</div>
+                <div class="card-sub">Growth: +0.71 MB (Max: 59.16 MB)</div>
             </div>
             <div class="card">
                 <div class="card-label">Database Health</div>
                 <div class="card-value" style="color:#34D399;">HEALTHY</div>
-                <div class="card-sub">Ping: 1.9 ms (mysql)</div>
+                <div class="card-sub">Ping: 2.0 ms (sqlite)</div>
             </div>
         </div>
 
+        <div class="section-title">📋 System Telemetry & APM Test Results</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Metric / Test Name</th>
+                    <th>Measured Value</th>
+                    <th>Target / Condition</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>App Health</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">Application Availability</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">100% (Available)</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">100%</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">FastAPI Core Engine Status</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Throughput</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">Total Monitored Requests</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">375</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">> 0</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">Throughput: 22.38 req/s</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Success Rate</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">Successful Requests</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">345 (92.00%)</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">100%</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">FAILED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">Success Rate: 92.00%</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Error Rate</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">Failed Requests</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">30 (8.00%)</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">FAILED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">Error Rate: 8.00%</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Response Time</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">Average Latency</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">220.06 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">< 200 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">FAILED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">Mean response duration</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Response Time</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">P50 Latency (Median)</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">41.7 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">< 300 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">50th percentile latency</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Response Time</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">P90 Latency</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">99.32 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">< 500 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">90th percentile latency</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Response Time</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">P95 Latency</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">2048.1 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">< 500 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">FAILED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">95th percentile latency threshold</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Response Time</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">P99 Latency</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">2520.67 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">< 1000 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">FAILED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">99th percentile latency</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Response Time</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">Maximum Latency</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">2952.82 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">< 2000 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">FAILED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">Peak latency observed</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>CPU Usage</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">Average CPU Utilization</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">56.38%</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">< 80.0%</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">Peak CPU: 100.0%</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Memory Usage</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">Average Memory Usage</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">59.13 MB</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">Growth < 100 MB</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">Max RAM: 59.16 MB (+0.71 MB growth)</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Database</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">Database Health</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">HEALTHY</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">HEALTHY</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">Ping: 2.0 ms (sqlite)</td>
+            </tr>
+            
+            <tr>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>Overall APM</strong></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">APM Execution Evaluation</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; font-weight:600;">APM TESTING FAILED</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">APM TESTING PASSED</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">APM TESTING FAILED</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#64748B;">Master APM Status</td>
+            </tr>
+            
+            </tbody>
+        </table>
+
         <div class="section-title">📊 Latency Percentile Distribution</div>
         <div class="grid-cards">
-            <div class="card"><div class="card-label">P50 (Median)</div><div class="card-value">18.8 ms</div></div>
-            <div class="card"><div class="card-label">P90 Percentile</div><div class="card-value">32.88 ms</div></div>
-            <div class="card"><div class="card-label">P95 Percentile</div><div class="card-value" style="color:#38BDF8;">48.69 ms</div></div>
-            <div class="card"><div class="card-label">P99 Percentile</div><div class="card-value">2565.91 ms</div></div>
-            <div class="card"><div class="card-label">Max Latency</div><div class="card-value">3051.21 ms</div></div>
+            <div class="card"><div class="card-label">P50 (Median)</div><div class="card-value">41.7 ms</div></div>
+            <div class="card"><div class="card-label">P90 Percentile</div><div class="card-value">99.32 ms</div></div>
+            <div class="card"><div class="card-label">P95 Percentile</div><div class="card-value" style="color:#38BDF8;">2048.1 ms</div></div>
+            <div class="card"><div class="card-label">P99 Percentile</div><div class="card-value">2520.67 ms</div></div>
+            <div class="card"><div class="card-label">Max Latency</div><div class="card-value">2952.82 ms</div></div>
         </div>
 
         <div class="section-title">⚡ API Endpoint Monitored Performance</div>
@@ -188,10 +332,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">16.94 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">8.12 / 35.88 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">26.23 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">12.69 / 47.0 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -200,10 +344,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">14.19 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">8.97 / 49.99 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">30.57 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">22.0 / 63.08 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -212,10 +356,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">13.24 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">9.26 / 18.35 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">57.49 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">26.46 / 75.86 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -224,10 +368,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">28.79 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">15.34 / 85.2 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">92.97 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">62.2 / 158.12 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -236,10 +380,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">45</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">45</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">25.15 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">10.77 / 45.68 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">4.75 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">44.23 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">22.0 / 73.18 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">2.69 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -248,10 +392,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">13.26 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">9.71 / 17.5 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">33.22 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">17.95 / 42.01 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -260,10 +404,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">21.11 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">10.34 / 29.17 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">38.62 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">29.25 / 47.53 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -272,10 +416,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">21.44 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">17.06 / 36.19 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">65.45 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">49.66 / 80.43 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -284,10 +428,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">17.36 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">13.01 / 21.94 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">41.71 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">22.39 / 49.83 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -296,10 +440,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">18.28 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">10.66 / 22.9 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">46.55 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">37.15 / 58.27 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -308,10 +452,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">17.2 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">12.79 / 21.07 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">39.03 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">17.38 / 50.19 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -320,10 +464,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">17.73 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">14.09 / 21.04 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">36.04 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">22.0 / 43.54 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -332,10 +476,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">17.81 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">13.2 / 24.43 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">33.81 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">19.16 / 43.09 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -344,10 +488,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">17.52 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">11.67 / 21.7 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">36.29 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">21.85 / 47.12 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -356,10 +500,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">20.84 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">12.17 / 32.9 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">53.84 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">44.02 / 66.64 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -368,10 +512,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">18.06 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">13.46 / 22.54 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">49.28 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">40.48 / 56.28 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -380,10 +524,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">18.38 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">14.87 / 23.1 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">42.08 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">33.88 / 50.46 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -392,10 +536,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">20.84 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">11.63 / 25.94 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">39.2 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">30.37 / 52.07 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -404,10 +548,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">18.04 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">15.42 / 22.04 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">36.1 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">29.05 / 43.29 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -416,10 +560,10 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">13.66 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">10.0 / 21.71 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">31.68 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">22.77 / 39.47 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
@@ -428,34 +572,34 @@
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">57.93 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">13.8 / 554.2 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">138.93 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">30.75 / 1602.92 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; border: 1px solid #10B981; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">PASSED</span></td>
             </tr>
             
             <tr>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>GET</strong></td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; font-family:monospace;">/apm/metrics</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">2481.1 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1027.71 / 3051.21 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">0</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#F87171;">15 (100.0%)</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">2351.61 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1346.97 / 2952.82 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">FAILED</span></td>
             </tr>
             
             <tr>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;"><strong>GET</strong></td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B; font-family:monospace;">/apm/db-health</td>
                 <td style="padding:10px; border-bottom: 1px solid #1E293B;">15</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">15</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#94A3B8;">0 (0.0%)</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">190.35 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">22.06 / 2405.45 ms</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;">1.58 req/s</td>
-                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(16,185,129,0.2); color:#34D399; padding:3px 8px; border-radius:4px; font-weight:600;">PASS</span></td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#34D399;">0</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B; color:#F87171;">15 (100.0%)</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">2048.16 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">2037.5 / 2067.2 ms</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;">0.9 req/s</td>
+                <td style="padding:10px; border-bottom: 1px solid #1E293B;"><span style="background: rgba(239,68,68,0.2); color:#F87171; border: 1px solid #EF4444; padding:4px 10px; border-radius:4px; font-weight:700; font-size:12px;">FAILED</span></td>
             </tr>
             
             </tbody>
@@ -475,162 +619,162 @@
             <tbody>
                 
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-f6134f142fa2</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-ba968fe450f4</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.343 -> 11:44:16.359</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">15.75 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.451 -> 17:47:52.464</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">12.69 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-f64f3c0c26e2</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-c1935fa659bf</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.343 -> 11:44:16.369</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">25.97 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.459 -> 17:47:52.480</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">21.19 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-005013e85f46</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-bd26493c42e6</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.344 -> 11:44:16.372</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">27.64 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.464 -> 17:47:52.480</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">16.65 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-7ea8e2bdf774</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-3a17b6c343fc</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.345 -> 11:44:16.381</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">35.88 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.468 -> 17:47:52.486</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">18.62 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-9177de292ac3</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-e5d9ef842a11</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.349 -> 11:44:16.375</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">26.69 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.480 -> 17:47:52.494</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">14.07 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-c22d16dda8ef</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-0e8b1b3b7bdc</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.359 -> 11:44:16.375</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">15.6 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.487 -> 17:47:52.506</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">18.46 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-f7db73cce5d5</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-67d5db46b21a</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.369 -> 11:44:16.378</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">8.37 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.487 -> 17:47:52.509</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">21.18 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-5e313f029a81</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-bd5f979ddf67</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.372 -> 11:44:16.380</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">8.12 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.492 -> 17:47:52.519</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">26.28 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-faa0f7563349</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-204bc21d23a1</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.375 -> 11:44:16.385</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">10.15 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.494 -> 17:47:52.517</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">23.0 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-9044d6dd934f</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-53824dd8c9ff</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.375 -> 11:44:16.389</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">14.1 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.598 -> 17:47:52.645</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">47.0 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-f1b9faa19cae</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-40602f87ab43</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.378 -> 11:44:16.390</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">12.72 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.608 -> 17:47:52.637</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">29.0 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-14b1c5e852dc</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-e12d0a32934a</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.380 -> 11:44:16.393</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">12.87 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.608 -> 17:47:52.651</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">42.83 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-9a87ba679a49</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-e17b59593b74</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.382 -> 11:44:16.396</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">13.41 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.610 -> 17:47:52.652</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">41.84 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-0da6a2bc411c</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-1f9f6967ce54</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.385 -> 11:44:16.397</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">11.83 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.611 -> 17:47:52.648</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">36.83 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-f4df794678ba</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-894ff1e3ffc6</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /health</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.389 -> 11:44:16.404</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">15.01 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.637 -> 17:47:52.661</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">23.83 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-cdc1e8c8a9d7</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-7767764e4db7</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.390 -> 11:44:16.406</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">15.59 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.645 -> 17:47:52.671</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">25.7 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-41d613724a97</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-fe6bc9d23a3c</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.393 -> 11:44:16.403</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">10.04 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.648 -> 17:47:52.678</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">30.0 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-13ea0ed70671</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-6aa83b05d3c3</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.396 -> 11:44:16.409</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">13.47 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.651 -> 17:47:52.680</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">29.0 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-1a11e394a424</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-e3218a6c7ab4</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.397 -> 11:44:16.410</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">13.47 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.652 -> 17:47:52.688</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">35.99 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
             <tr>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-065f34da0560</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-family:monospace; font-size:12px; color:#60A5FA;">tr-7e99025ae969</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;">GET /</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B;">11:44:16.403 -> 11:44:16.413</td>
-                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">9.71 ms</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B;">17:47:52.661 -> 17:47:52.696</td>
+                <td style="padding:8px; border-bottom: 1px solid #1E293B; font-weight:600;">35.0 ms</td>
                 <td style="padding:8px; border-bottom: 1px solid #1E293B;"><span style="color:#34D399;">200</span></td>
             </tr>
             
@@ -638,7 +782,7 @@
         </table>
 
         <div class="footer">
-            Generated on 2026-08-10 11:44:25 | SpectraGuard AI Pharmaceutical Authentication System
+            Generated on 2026-08-10 17:48:09 | SpectraGuard AI Pharmaceutical Authentication System
         </div>
     </div>
 </body>
