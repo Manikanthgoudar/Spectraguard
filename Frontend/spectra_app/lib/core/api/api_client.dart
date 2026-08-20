@@ -16,15 +16,18 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// You never need to edit this file again — just change the flag.
 const String _devMachineIp = String.fromEnvironment(
   'DEV_MACHINE_IP',
-  defaultValue: '192.168.31.202',
+  defaultValue: '',
 );
 
 String get _baseUrl {
-  if (kIsWeb) return 'http://localhost:8000';
+  if (kIsWeb) return 'http://127.0.0.1:8000';
   if (Platform.isAndroid) {
-    return 'http://$_devMachineIp:8000';
+    if (_devMachineIp.isNotEmpty) {
+      return 'http://$_devMachineIp:8000';
+    }
+    return 'http://10.0.2.2:8000';
   }
-  return 'http://localhost:8000';
+  return 'http://127.0.0.1:8000';
 }
 
 /// Public accessor so other layers (e.g. profile photo URL builder) can

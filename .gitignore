@@ -10,3 +10,34 @@ env/
 .idea/
 .vscode/
 .DS_Store
+# Node dependencies
+node_modules/
+
+# Test reports and generated results
+Test_Results/
+reports/
+
+# Generated reports
+*.xlsx
+
+# Generated markdown reports
+dependency-report.md
+executive-summary.md
+k6-step-summary.md
+security-review.md
+web-executive-summary.md
+web-security-review.md
+
+# Generated test scripts
+tests/100vu_load_test.py
+tests/load_test_100vu.py
+tests/run_100vu.py
+# Large ML datasets and generated results
+ML/results/processed_raman_features.csv
+ML/dataset/raman_spectra_api_compounds.csv
+ML/authentication/references/raw/
+
+# Generated application data
+reports/
+uploads/
+ML/results/

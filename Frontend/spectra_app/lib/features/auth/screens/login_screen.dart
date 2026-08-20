@@ -31,8 +31,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _emailCtrl.text.trim(),
           _passwordCtrl.text,
         );
+    if (!mounted) return;
     final error = ref.read(authProvider).error;
-    if (error != null && mounted) {
+    if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error),

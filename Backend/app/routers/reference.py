@@ -41,6 +41,104 @@ def _orm_to_response(ref: ReferenceSpectrum) -> ReferenceResponse:
     )
 
 
+from app.services.raman_analysis_service import get_raman_analysis_service
+
+
+@router.get("/drugs")
+def get_reference_drugs(
+    db: Session = Depends(get_db)
+):
+    """
+    Get all currently active drug names available in the reference database.
+    Source of truth: Active ML ReferenceManager standards & Database reference records.
+    """
+    service = get_raman_analysis_service()
+    ml_drugs = set(service.get_available_drugs())
+
+    try:
+        db_drug_rows = db.query(ReferenceSpectrum.drug_name).distinct().all()
+        for row in db_drug_rows:
+            if row[0] and row[0].strip():
+                ml_drugs.add(row[0].strip())
+    except Exception:
+        pass
+
+    drugs_list = sorted(list(ml_drugs))
+    return {
+        "success": True,
+        "count": len(drugs_list),
+        "drugs": drugs_list
+    }
+
+
+@router.get("/drugs/search")
+def search_reference_drugs(
+    q: str = "",
+    db: Session = Depends(get_db)
+):
+    """
+    Search available pharmaceutical drug names by substring query.
+    """
+    service = get_raman_analysis_service()
+    all_drugs = service.get_available_drugs()
+    try:
+        db_drug_rows = db.query(ReferenceSpectrum.drug_name).distinct().all()
+        for row in db_drug_rows:
+            if row[0] and row[0].strip():
+                if row[0].strip() not in all_drugs:
+                    all_drugs.append(row[0].strip())
+    except Exception:
+        pass
+
+    q_clean = q.strip().lower()
+    if not q_clean:
+        filtered = sorted(all_drugs)
+    else:
+        filtered = sorted([d for d in all_drugs if q_clean in d.lower()])
+
+    return {
+        "success": True,
+        "query": q,
+        "count": len(filtered),
+        "drugs": filtered
+    }
+
+
+@router.get("/drugs/{drug_name}/references")
+def get_drug_references(
+    drug_name: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get active reference standards registered for a target pharmaceutical drug name.
+    """
+    query = db.query(ReferenceSpectrum).filter(ReferenceSpectrum.drug_name.ilike(drug_name.strip()))
+    refs = query.all()
+    return {
+        "success": True,
+        "drug_name": drug_name,
+        "count": len(refs),
+        "references": [
+            {
+                "id": r.id,
+                "reference_id": r.batch_reference,
+                "drug_name": r.drug_name,
+                "brand_name": r.brand_name,
+                "source": r.source or r.manufacturer,
+                "dataset_name": r.dataset_name,
+                "doi": r.doi,
+                "license": r.license,
+                "sample_type": r.sample_type,
+                "wavenumber_range": r.wavenumber_range,
+                "missing_range": r.missing_range,
+                "reference_status": r.reference_status or "ACTIVE"
+            }
+            for r in refs
+        ]
+    }
+
+
+
 @router.get("", response_model=List[ReferenceResponse])
 def list_references(
     skip: int = 0,
@@ -55,6 +153,7 @@ def list_references(
         query = query.filter(ReferenceSpectrum.drug_name.ilike(f"%{drug_name}%"))
     refs = query.offset(skip).limit(limit).all()
     return [_orm_to_response(ref) for ref in refs]
+
 
 
 @router.get("/{ref_id}", response_model=ReferenceResponse)

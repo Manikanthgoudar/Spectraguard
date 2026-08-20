@@ -76,7 +76,7 @@ DRUG_PROFILES = {
 def main():
     db = SessionLocal()
 
-    print("🌱 Starting database seeding...")
+    print("[+] Starting database seeding...")
 
     # ── Clear existing data (order matters due to FK constraints) ─────────────
     print("  Clearing existing seed data...")
@@ -147,7 +147,7 @@ def main():
     for u in users:
         db.add(u)
     db.flush()
-    print(f"    ✓ {len(users)} users created")
+    print(f"    [OK] {len(users)} users created")
 
     # ── Reference Spectra ──────────────────────────────────────────────────────
     print("  Creating reference spectra...")
@@ -178,7 +178,7 @@ def main():
         references.append((ref, drug_name, peaks))
 
     db.flush()
-    print(f"    ✓ {len(references)} reference spectra created")
+    print(f"    [OK] {len(references)} reference spectra created")
 
     # ── Tests + Spectra Data ───────────────────────────────────────────────────
     print("  Creating test records and spectral data...")
@@ -237,7 +237,7 @@ def main():
         db.add(spectra)
 
     db.commit()
-    print(f"    ✓ {len(test_configs)} tests + spectral data records created")
+    print(f"    [OK] {len(test_configs)} tests + spectral data records created")
 
     # ── Sample CSV Files ───────────────────────────────────────────────────────
     print("  Creating sample CSV files for demo...")
@@ -251,7 +251,7 @@ def main():
             f.write("wavenumber,intensity\n")
             for wn, it in zip(wavenumbers, intensity):
                 f.write(f"{wn},{it}\n")
-        print(f"    ✓ {csv_path}")
+        print(f"    [OK] {csv_path}")
 
     # Counterfeit samples (high noise — should classify as counterfeit/requires verification)
     counterfeit_drugs = ["Paracetamol", "Amoxicillin", "Ibuprofen"]
@@ -263,7 +263,7 @@ def main():
             f.write("wavenumber,intensity\n")
             for wn, it in zip(wavenumbers, intensity):
                 f.write(f"{wn},{it}\n")
-        print(f"    ✓ {csv_path}")
+        print(f"    [OK] {csv_path}")
 
     # Borderline samples (medium noise — should classify as requires_verification)
     borderline_drugs = ["Metformin", "Ciprofloxacin"]
@@ -275,19 +275,19 @@ def main():
             f.write("wavenumber,intensity\n")
             for wn, it in zip(wavenumbers, intensity):
                 f.write(f"{wn},{it}\n")
-        print(f"    ✓ {csv_path}")
+        print(f"    [OK] {csv_path}")
 
     db.close()
 
-    print("\n✅ Database seeding complete!")
-    print("\n📋 Seeded Credentials:")
+    print("\n[+] Database seeding complete!")
+    print("\n[+] Seeded Credentials:")
     print("  Admin:        admin@spectraguard.com     / Admin@1234")
     print("  Pharmacist 1: sarah.chen@pharmacy.com    / Pharma@1234")
     print("  Pharmacist 2: j.okonkwo@pharmacy.com     / Pharma@5678")
     print("  Investigator: m.lopez@fda.gov             / Invest@1234")
     print("  Public:       user@example.com            / User@1234")
-    print("\n🚀 Run the API:  uvicorn app.main:app --reload")
-    print("📖 API Docs:     http://localhost:8000/docs")
+    print("\n[+] Run the API:  uvicorn app.main:app --reload")
+    print("[+] API Docs:     http://localhost:8000/docs")
 
 
 if __name__ == "__main__":

@@ -37,19 +37,37 @@ def generate_report(
     if current_user.role != UserRole.admin and test.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Access denied")
 
+    logger.info(f"Report database lookup | test_id={test_id} | classification_result={test.classification_result}")
+
     if test.classification_result == ClassificationResult.pending:
-        raise HTTPException(
-            status_code=400,
-            detail="Test must be classified before generating a report. Run /classify/{test_id} first.",
-        )
+        logger.info(f"Test {test_id} is pending classification. Running fallback classification service.")
+        try:
+            from app.services.classification_service import classify_and_persist_test
+            classify_and_persist_test(test, db)
+        except Exception as exc:
+            logger.error(f"Fallback classification failed for test {test_id}: {exc}")
+
+        if test.classification_result == ClassificationResult.pending:
+            raise HTTPException(
+                status_code=400,
+                detail="Test must be classified before generating a report. Run /classify/{test_id} first.",
+            )
 
     user = test.user
     spectra = db.query(SpectraData).filter(SpectraData.test_id == test_id).first()
     reference = None
-    if test.matched_reference_id:
-        reference = db.query(ReferenceSpectrum).filter(
-            ReferenceSpectrum.id == test.matched_reference_id
-        ).first()
+    try:
+        if test.matched_reference_id:
+            reference = db.query(ReferenceSpectrum).filter(
+                ReferenceSpectrum.id == test.matched_reference_id
+            ).first()
+        if not reference and test.drug_name:
+            reference = db.query(ReferenceSpectrum).filter(
+                ReferenceSpectrum.drug_name == test.drug_name
+            ).first()
+    except Exception as ref_exc:
+        logger.warning(f"Could not load reference spectrum for report test {test_id}: {ref_exc}")
+        reference = None
 
     # Determine output path
     ts = datetime.utcnow().strftime("%Y%m%d%H%M%S")

@@ -20,7 +20,15 @@ class TestDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppShellAppBar(title: 'Test Details'),
+      appBar: AppShellAppBar(
+        title: 'Test Details',
+        actions: [
+          testAsync.maybeWhen(
+            data: (test) => _HeaderDeleteButton(test: test),
+            orElse: () => const SizedBox.shrink(),
+          ),
+        ],
+      ),
       body: testAsync.when(
         loading: () => const LoadingOverlay(),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -218,12 +226,120 @@ class _ResultCard extends StatelessWidget {
       };
 }
 
-class _Actions extends StatelessWidget {
+class _HeaderDeleteButton extends ConsumerWidget {
+  const _HeaderDeleteButton({required this.test});
+  final SpectraTest test;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return IconButton(
+      icon: const Icon(Icons.delete_outline, color: AppColors.error),
+      tooltip: 'Delete Test',
+      onPressed: () => _confirmAndDeleteTest(context, ref, test),
+    );
+  }
+}
+
+Future<void> _confirmAndDeleteTest(
+    BuildContext context, WidgetRef ref, SpectraTest test) async {
+  final messenger = ScaffoldMessenger.of(context);
+  final navigator = Navigator.of(context, rootNavigator: true);
+  final router = GoRouter.of(context);
+
+  final confirm = await showDialog<bool>(
+        context: context,
+        builder: (dialogCtx) => AlertDialog(
+          title: const Text('Delete Test?'),
+          content: Text(
+              'Are you sure you want to permanently delete this test for "${test.drugName}" and its associated analysis data?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogCtx).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogCtx).pop(true),
+              child: const Text('Delete',
+                  style: TextStyle(color: AppColors.error)),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+
+  if (!confirm) return;
+
+  // Show loading dialog on rootNavigator
+  showDialog(
+    context: context,
+    useRootNavigator: true,
+    barrierDismissible: false,
+    builder: (_) => const Dialog(
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: AppColors.primary),
+            SizedBox(width: 16),
+            Text('Deleting test...'),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  try {
+    final success = await ref.read(testsProvider.notifier).deleteTest(test.id);
+    navigator.pop(); // Close loading dialog cleanly
+    if (success) {
+      router.go('/tests');
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('✓ Test deleted successfully'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  } catch (e) {
+    try {
+      navigator.pop(); // Close loading dialog cleanly
+    } catch (_) {}
+
+    String errorMsg = 'Unable to delete this test. Please try again.';
+    if (e.toString().contains('404')) {
+      errorMsg = 'Test no longer exists. Refreshing test history.';
+      ref.read(testsProvider.notifier).refresh();
+      router.go('/tests');
+    } else if (e.toString().contains('409')) {
+      errorMsg =
+          'Test cannot be deleted because it is being used by another record.';
+    }
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        useRootNavigator: true,
+        builder: (errCtx) => AlertDialog(
+          title: const Text('Deletion Error'),
+          content: Text(errorMsg),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(errCtx).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+}
+
+class _Actions extends ConsumerWidget {
   const _Actions({required this.test});
   final SpectraTest test;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isPending =
         test.classificationResult == ClassificationResult.pending;
 
@@ -251,6 +367,17 @@ class _Actions extends StatelessWidget {
             ),
           ),
         ],
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          onPressed: () => _confirmAndDeleteTest(context, ref, test),
+          icon: const Icon(Icons.delete_outline, color: AppColors.error),
+          label: const Text('Delete Test',
+              style: TextStyle(color: AppColors.error)),
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(color: AppColors.error.withOpacity(0.5)),
+            foregroundColor: AppColors.error,
+          ),
+        ),
       ],
     );
   }

@@ -38,24 +38,30 @@ MID_GRAY = colors.HexColor("#78909C")
 
 
 def _result_color(result: Any) -> colors.Color:
-    val = str(result.value if hasattr(result, "value") else result)
+    val = str(result.value if hasattr(result, "value") else result).lower()
     mapping = {
         "genuine": GENUINE_COLOR,
+        "authentic": GENUINE_COLOR,
         "potentially_counterfeit": COUNTERFEIT_COLOR,
+        "counterfeit": COUNTERFEIT_COLOR,
         "requires_verification": VERIFY_COLOR,
+        "unknown": VERIFY_COLOR,
     }
     return mapping.get(val, colors.black)
 
 
 def _result_label(result: Any) -> str:
-    val = str(result.value if hasattr(result, "value") else result)
+    val = str(result.value if hasattr(result, "value") else result).lower()
     labels = {
-        "genuine": "✓ GENUINE",
+        "genuine": "✓ AUTHENTIC",
+        "authentic": "✓ AUTHENTIC",
         "potentially_counterfeit": "⚠ POTENTIALLY COUNTERFEIT",
-        "requires_verification": "? REQUIRES FURTHER VERIFICATION",
+        "counterfeit": "⚠ POTENTIALLY COUNTERFEIT",
+        "requires_verification": "? UNKNOWN / VERIFICATION REQUIRED",
+        "unknown": "? UNKNOWN / VERIFICATION REQUIRED",
         "pending": "PENDING",
     }
-    return labels.get(val, val.upper())
+    return labels.get(val, str(result).upper())
 
 
 def _make_cell(text: Any, is_header: bool = False, align: int = TA_LEFT) -> Paragraph:

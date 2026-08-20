@@ -53,12 +53,20 @@ class TestsNotifier extends AsyncNotifier<List<SpectraTest>> {
     );
   }
 
-  Future<void> deleteTest(int testId) async {
+  Future<bool> deleteTest(int testId) async {
     final dio = ref.read(dioProvider);
-    await dio.delete('/tests/$testId');
-    state = AsyncData(
-      state.value?.where((t) => t.id != testId).toList() ?? [],
-    );
+    final resp = await dio.delete('/tests/$testId');
+    if (resp.statusCode == 200 || resp.statusCode == 204) {
+      ref.invalidate(testDetailProvider(testId));
+      final currentList = state.value;
+      if (currentList != null) {
+        state = AsyncData(currentList.where((t) => t.id != testId).toList());
+      } else {
+        await refresh();
+      }
+      return true;
+    }
+    return false;
   }
 }
 

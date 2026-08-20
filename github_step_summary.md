@@ -7,7 +7,7 @@
 | API Integration | 300 | 292 | 8 | 97.3% | 🟢 PASSED |
 | Load Testing | 500 | 500 | 0 | 100.0% | 🟢 PASSED |
 | Vulnerability Scanning | 15 | 15 | 0 | 100.0% | 🟢 PASSED |
-| Application Performance Monitoring (APM) | 375 | 369 | 6 | 98.4% | APM TESTING FAILED |
+| Application Performance Monitoring (APM) | 375 | 355 | 20 | 94.7% | APM TESTING FAILED |
 
 ### ⚡ Load & Performance Testing
 | Performance Metric | Value |
@@ -15,10 +15,10 @@
 | Target Endpoint | http://127.0.0.1:8000/health |
 | Total Requests | 500 |
 | Successful Requests | 500 (100.0% success) |
-| Throughput (Req/Sec) | 101.13 req/s |
-| Average Latency | 96.98 ms |
-| Min / Max Latency | 23 ms / 202 ms |
-| P50 / P90 / P99 Latency | 91 ms / 143 ms / 191 ms |
+| Throughput (Req/Sec) | 162.96 req/s |
+| Average Latency | 59.15 ms |
+| Min / Max Latency | 11 ms / 962 ms |
+| P50 / P90 / P99 Latency | 52 ms / 79 ms / 364 ms |
 | Status | 🟢 PASSED |
 
 ### 📊 Application Performance Monitoring (APM)
@@ -26,20 +26,20 @@
 | --- | --- | --- | --- |
 | Application Availability | 100% (Available) | 100% | 🟢 PASSED |
 | Total Monitored Requests | 375 | > 0 | 🟢 PASSED |
-| Successful Requests | 369 (98.40%) | 100% | 🟢 PASSED |
-| Failed Requests | 6 (1.60%) | 0 | 🟢 PASSED |
-| Success Rate | 98.40% | >= 99.0% | 🟢 PASSED |
-| Error Rate | 1.60% | < 1.0% | 🟢 PASSED |
-| Average Response Time | 249.94 ms | < 200 ms | 🟢 PASSED |
-| P50 Latency (Median) | 39.42 ms | < 300 ms | 🟢 PASSED |
-| P95 Latency | 531.13 ms | < 500 ms | 🟢 PASSED |
-| P99 Latency | 5032.38 ms | < 1000 ms | 🟢 PASSED |
-| Maximum Latency | 5798.12 ms | < 2000 ms | 🟢 PASSED |
-| Average CPU Usage | 62.78% | < 80.0% | 🟢 PASSED |
+| Successful Requests | 355 (94.67%) | 100% | 🟢 PASSED |
+| Failed Requests | 20 (5.33%) | 0 | 🟢 PASSED |
+| Success Rate | 94.67% | >= 99.0% | 🟢 PASSED |
+| Error Rate | 5.33% | < 1.0% | 🟢 PASSED |
+| Average Response Time | 321.97 ms | < 200 ms | 🟢 PASSED |
+| P50 Latency (Median) | 21.48 ms | < 300 ms | 🟢 PASSED |
+| P95 Latency | 5008.08 ms | < 500 ms | 🟢 PASSED |
+| P99 Latency | 5032.01 ms | < 1000 ms | 🟢 PASSED |
+| Maximum Latency | 5043.07 ms | < 2000 ms | 🟢 PASSED |
+| Average CPU Usage | 46.49% | < 80.0% | 🟢 PASSED |
 | Maximum CPU Usage | 100.0% | < 90.0% | 🟢 PASSED |
-| Average Memory Usage | 59.02 MB | Baseline | 🟢 PASSED |
-| Maximum Memory Usage | 59.04 MB | Growth < 100 MB | 🟢 PASSED |
-| Database Status | HEALTHY (12.0 ms) | HEALTHY | 🟢 PASSED |
+| Average Memory Usage | 59.1 MB | Baseline | 🟢 PASSED |
+| Maximum Memory Usage | 59.11 MB | Growth < 100 MB | 🟢 PASSED |
+| Database Status | HEALTHY (5.0 ms) | HEALTHY | 🟢 PASSED |
 | APM Status | APM TESTING FAILED | APM TESTING PASSED | APM TESTING FAILED |
 
 <details>

@@ -74,17 +74,26 @@ async def upload_spectrum(
     db.add(test)
     db.flush()  # get test.id before commit
 
-    # Store spectral data
+    # Store spectral data (rounded to 6 decimal places for clean storage)
+    wn_clean = [round(float(x), 6) for x in wavenumbers]
+    it_clean = [round(float(x), 6) for x in intensities]
     spectra = SpectraData(
         test_id=test.id,
-        wavenumber_data=json.dumps(wavenumbers),
-        intensity_data=json.dumps(intensities),
+        wavenumber_data=json.dumps(wn_clean),
+        intensity_data=json.dumps(it_clean),
     )
     db.add(spectra)
     db.commit()
     db.refresh(test)
 
-    logger.info(f"Spectrum uploaded | test_id={test.id} | user_id={current_user.id} | drug={drug_name}")
+    # Immediately run and persist classification so test is marked as classified
+    try:
+        from app.services.classification_service import classify_and_persist_test
+        classify_and_persist_test(test, db, file_bytes=file_bytes)
+    except Exception as exc:
+        logger.error(f"Automatic classification failed on upload test {test.id}: {exc}")
+
+    logger.info(f"Spectrum uploaded | test_id={test.id} | user_id={current_user.id} | drug={drug_name} | result={test.classification_result}")
     return test
 
 
@@ -166,17 +175,26 @@ def upload_sample_dataset(
     db.add(test)
     db.flush()
 
-    # Store spectral data
+    # Store spectral data (rounded to 6 decimal places for clean storage)
+    wn_clean = [round(float(x), 6) for x in wavenumbers]
+    it_clean = [round(float(x), 6) for x in intensities]
     spectra = SpectraData(
         test_id=test.id,
-        wavenumber_data=json.dumps(wavenumbers),
-        intensity_data=json.dumps(intensities),
+        wavenumber_data=json.dumps(wn_clean),
+        intensity_data=json.dumps(it_clean),
     )
     db.add(spectra)
     db.commit()
     db.refresh(test)
 
-    logger.info(f"Sample dataset uploaded | test_id={test.id} | user_id={current_user.id} | filename={filename}")
+    # Immediately run and persist classification
+    try:
+        from app.services.classification_service import classify_and_persist_test
+        classify_and_persist_test(test, db, file_bytes=file_bytes)
+    except Exception as exc:
+        logger.error(f"Automatic classification failed on sample test {test.id}: {exc}")
+
+    logger.info(f"Sample dataset uploaded | test_id={test.id} | user_id={current_user.id} | filename={filename} | result={test.classification_result}")
     return test
 
 

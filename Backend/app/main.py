@@ -12,7 +12,7 @@ from app.core.logging_config import logger
 # Import models so SQLAlchemy metadata is populated (needed for create_all)
 from app.models import User, ReferenceSpectrum, Test, SpectraData, Report, ChatMessage  # noqa: F401
 from app.core.apm_middleware import APMMiddleware
-from app.routers import auth, spectra, classify, tests, reference, reports, admin, nearby, chat, apm
+from app.routers import auth, spectra, classify, tests, reference, reports, admin, nearby, chat, apm, raman_analysis
 
 # Profile photos directory (created on startup)
 PHOTOS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads", "photos")
@@ -53,15 +53,24 @@ app = FastAPI(
 # ── APM Middleware & CORS ───────────────────────────────────────────────────
 app.add_middleware(APMMiddleware)
 
-_cors_origins = settings.cors_origins_list
-# Browsers reject allow_credentials=True with a wildcard origin.
-# Use credentials only when explicit origins are listed.
-_allow_credentials = "*" not in _cors_origins
+# Exclude '*' from allow_origins so Starlette evaluates allow_origin_regex
+_cors_origins = [o for o in settings.cors_origins_list if o != "*"]
+for default_origin in [
+    "http://localhost:50998",
+    "http://127.0.0.1:50998",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]:
+    if default_origin not in _cors_origins:
+        _cors_origins.append(default_origin)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
-    allow_credentials=_allow_credentials,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -92,6 +101,7 @@ app.include_router(admin.router)
 app.include_router(nearby.router)
 app.include_router(chat.router)
 app.include_router(apm.router)
+app.include_router(raman_analysis.router)
 
 
 # ── Static files (profile photos) ───────────────────────────────────────────

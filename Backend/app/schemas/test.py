@@ -50,3 +50,10 @@ class SpectraDataResponse(BaseModel):
     intensity_data: List[float]
 
     model_config = {"from_attributes": True}
+
+
+class TestDeleteResponse(BaseModel):
+    success: bool
+    test_id: Optional[int] = None
+    message: str
+

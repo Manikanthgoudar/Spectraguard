@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spectra_app/core/api/api_client.dart';
 import 'package:spectra_app/core/auth/auth_service.dart';
@@ -57,7 +58,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final user = await _service.login(email, password);
       state = state.copyWith(user: user, isLoading: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: _extractMessage(e));
     }
   }
 
@@ -87,7 +88,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
       state = state.copyWith(user: user, isLoading: false);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: _extractMessage(e));
     }
   }
 
@@ -111,7 +112,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(user: updated, isLoading: false);
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: _extractMessage(e));
       return false;
     }
   }
@@ -135,7 +136,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(user: updated);
       return true;
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: _extractMessage(e));
       return false;
     }
   }
@@ -146,7 +147,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(user: updated);
       return true;
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: _extractMessage(e));
       return false;
     }
   }
@@ -189,8 +190,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   String _extractMessage(Object e) {
+    if (e is DioException && e.response?.data != null) {
+      final data = e.response!.data;
+      if (data is Map<String, dynamic>) {
+        if (data['detail'] is String) return data['detail'] as String;
+        if (data['message'] is String) return data['message'] as String;
+      }
+    }
     final s = e.toString();
-    // Try to pull the detail field from a DioException response
     final match = RegExp(r'"detail"\s*:\s*"([^"]+)"').firstMatch(s);
     if (match != null) return match.group(1)!;
     return s;

@@ -3,6 +3,7 @@ import uuid
 import shutil
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -28,7 +29,8 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(payload: SignupRequest, db: Session = Depends(get_db)):
     """Register a new user (role-based, with conditional field validation)."""
-    existing = db.query(User).filter(User.email == payload.email).first()
+    email_clean = payload.email.strip().lower()
+    existing = db.query(User).filter(func.lower(User.email) == email_clean).first()
     if existing:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -36,8 +38,8 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
         )
 
     user = User(
-        full_name=payload.full_name,
-        email=payload.email,
+        full_name=payload.full_name.strip(),
+        email=email_clean,
         password_hash=hash_password(payload.password),
         phone=payload.phone,
         role=payload.role,
@@ -61,10 +63,25 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     or their stored device_id was lost (e.g. cleared browser storage on web).
     Use /auth/force-login for the same behavior explicitly.
     """
-    logger.info("Login attempt for email=%s device=%s", payload.email, payload.device_id)
-    user = db.query(User).filter(User.email == payload.email, User.is_active == 1).first()
-    if not user or not verify_password(payload.password, user.password_hash):
-        logger.warning("Login failed for email=%s — invalid credentials or inactive account", payload.email)
+    email_clean = payload.email.strip().lower()
+    logger.info("Login attempt for email=%s device=%s", email_clean, payload.device_id)
+    user = db.query(User).filter(func.lower(User.email) == email_clean).first()
+    if not user:
+        logger.warning("Login failed for email=%s — user not found", email_clean)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+
+    if not user.is_active:
+        logger.warning("Login failed for email=%s — inactive account", email_clean)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Account is inactive. Please contact support.",
+        )
+
+    if not verify_password(payload.password, user.password_hash):
+        logger.warning("Login failed for email=%s — incorrect password", email_clean)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
@@ -86,8 +103,19 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 @router.post("/force-login", response_model=TokenResponse)
 def force_login(payload: LoginRequest, db: Session = Depends(get_db)):
     """Force login — kicks out any existing session and logs in on the new device."""
-    user = db.query(User).filter(User.email == payload.email, User.is_active == 1).first()
-    if not user or not verify_password(payload.password, user.password_hash):
+    email_clean = payload.email.strip().lower()
+    user = db.query(User).filter(func.lower(User.email) == email_clean).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Account is inactive. Please contact support.",
+        )
+    if not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",

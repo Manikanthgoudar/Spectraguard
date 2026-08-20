@@ -8,11 +8,14 @@ class ReportState {
   const ReportState({
     this.isGenerating = false,
     this.isDownloading = false,
+    this.isGenerated = false,
     this.localPath,
     this.error,
   });
+
   final bool isGenerating;
   final bool isDownloading;
+  final bool isGenerated;
   final String? localPath;
   final String? error;
 }
@@ -28,7 +31,7 @@ class ReportNotifier extends StateNotifier<ReportState> {
     try {
       final dio = _ref.read(dioProvider);
       await dio.post('/reports/generate/$testId');
-      state = const ReportState();
+      state = const ReportState(isGenerated: true);
     } on Exception catch (e) {
       state = ReportState(error: _extractMessage(e));
     }
@@ -43,7 +46,7 @@ class ReportNotifier extends StateNotifier<ReportState> {
           dio: dio,
           testId: testId,
         );
-        state = ReportState(localPath: savedPath);
+        state = ReportState(isGenerated: true, localPath: savedPath);
       } on DioException catch (e) {
         if (e.response?.statusCode == 404) {
           // Auto-generate report if not generated yet, then attempt download
@@ -54,7 +57,7 @@ class ReportNotifier extends StateNotifier<ReportState> {
             dio: dio,
             testId: testId,
           );
-          state = ReportState(localPath: savedPath);
+          state = ReportState(isGenerated: true, localPath: savedPath);
         } else {
           rethrow;
         }

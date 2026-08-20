@@ -61,8 +61,12 @@ class Settings(BaseSettings):
             return ["*"]
 
     class Config:
-        env_file = ".env"
+        env_file = [
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"),
+            ".env"
+        ]
         case_sensitive = True
+
 
 
 settings = Settings()

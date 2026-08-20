@@ -63,8 +63,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               ? null
               : _cityCtrl.text.trim(),
         );
+    if (!mounted) return;
     final error = ref.read(authProvider).error;
-    if (error != null && mounted) {
+    if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error), backgroundColor: AppColors.error),
       );

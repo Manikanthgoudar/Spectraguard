@@ -42,30 +42,13 @@ def run_classification(
             detail="No spectral data found for this test. Upload a CSV first.",
         )
 
-    references = db.query(ReferenceSpectrum).all()
-
-    wavenumbers = json.loads(spectra.wavenumber_data)
-    intensities = json.loads(spectra.intensity_data)
-
-    result = classify_spectrum(wavenumbers, intensities, references)
-
-    # Persist all classification fields to the test record
-    test.classification_result = result["classification_result"]
-    test.confidence_score = result["confidence_score"]
-    test.cosine_similarity = result["cosine_similarity"]
-    test.euclidean_distance = result["euclidean_distance"]
-    test.risk_level = result["risk_level"]
-    test.matched_reference_id = result["matched_reference_id"]
-    test.peak_match_count = result["peak_match_count"]
-    test.peak_difference_summary = result["peak_difference_summary"]
-    test.ai_explanation = result["ai_explanation"]
-    db.commit()
-    db.refresh(test)
+    from app.services.classification_service import classify_and_persist_test
+    classify_and_persist_test(test, db)
 
     logger.info(
         f"Classification | test_id={test_id} | user_id={current_user.id} | "
-        f"result={result['classification_result']} | confidence={result['confidence_score']} | "
-        f"risk={result['risk_level']}"
+        f"result={test.classification_result} | confidence={test.confidence_score} | "
+        f"risk={test.risk_level}"
     )
 
     messages = {

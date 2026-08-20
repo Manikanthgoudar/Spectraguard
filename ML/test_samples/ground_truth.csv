@@ -1,0 +1,6 @@
+sample_id,actual_label
+sample_01_acetone.csv,Acetone
+sample_02_ethanol.csv,Ethanol
+sample_03_toluene.csv,Toluene
+sample_04_chloroform.csv,Chloroform
+sample_05_cyclohexane.csv,Cyclohexane

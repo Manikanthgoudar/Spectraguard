@@ -171,6 +171,96 @@ class _TestTile extends ConsumerWidget {
   const _TestTile({required this.test});
   final SpectraTest test;
 
+  Future<void> _handleDelete(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context, rootNavigator: true);
+
+    final confirm = await showDialog<bool>(
+          context: context,
+          builder: (dialogCtx) => AlertDialog(
+            title: const Text('Delete Test?'),
+            content: Text(
+                'Are you sure you want to permanently delete this test for "${test.drugName}" and its associated analysis data?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogCtx).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogCtx).pop(true),
+                child: const Text('Delete',
+                    style: TextStyle(color: AppColors.error)),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!confirm) return;
+
+    // Show loading dialog on rootNavigator
+    showDialog(
+      context: context,
+      useRootNavigator: true,
+      barrierDismissible: false,
+      builder: (_) => const Dialog(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: AppColors.primary),
+              SizedBox(width: 16),
+              Text('Deleting test...'),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final success = await ref.read(testsProvider.notifier).deleteTest(test.id);
+      navigator.pop(); // Close loading dialog cleanly
+      if (success) {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('✓ Test deleted successfully'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (e) {
+      try {
+        navigator.pop(); // Close loading dialog cleanly
+      } catch (_) {}
+
+      String errorMsg = 'Unable to delete this test. Please try again.';
+      if (e.toString().contains('404')) {
+        errorMsg = 'Test no longer exists. Refreshing test history.';
+        ref.read(testsProvider.notifier).refresh();
+      } else if (e.toString().contains('409')) {
+        errorMsg =
+            'Test cannot be deleted because it is being used by another record.';
+      }
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          useRootNavigator: true,
+          builder: (errCtx) => AlertDialog(
+            title: const Text('Deletion Error'),
+            content: Text(errorMsg),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(errCtx).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Dismissible(
@@ -186,29 +276,8 @@ class _TestTile extends ConsumerWidget {
         child: const Icon(Icons.delete_outline, color: AppColors.error),
       ),
       confirmDismiss: (_) async {
-        return await showDialog<bool>(
-              context: context,
-              builder: (_) => AlertDialog(
-                title: const Text('Delete Test'),
-                content: Text(
-                    'Delete test for "${test.drugName}"? This cannot be undone.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Delete',
-                        style: TextStyle(color: AppColors.error)),
-                  ),
-                ],
-              ),
-            ) ??
-            false;
-      },
-      onDismissed: (_) {
-        ref.read(testsProvider.notifier).deleteTest(test.id);
+        await _handleDelete(context, ref);
+        return false; // Handled by deleteTest notifier update
       },
       child: GestureDetector(
         onTap: () => context.go('/tests/${test.id}'),
@@ -276,6 +345,12 @@ class _TestTile extends ConsumerWidget {
                 compact: true,
               ),
               const SizedBox(width: 4),
+              IconButton(
+                icon: const Icon(Icons.delete_outline,
+                    color: AppColors.error, size: 20),
+                tooltip: 'Delete test',
+                onPressed: () => _handleDelete(context, ref),
+              ),
               const Icon(Icons.chevron_right,
                   color: AppColors.textSecondary, size: 18),
             ],
